@@ -13,7 +13,9 @@ class Buses extends Component {
     }
 
     componentDidMount() {
-        DataBuses.getStationBuses(this.props.stationId).then(buses => this.setState({buses}))
+        if (this.props.stationId != null) {
+            DataBuses.getStationBuses(this.props.stationId).then(buses => this.setState({buses}))
+        }
     }
 
     componentDidUpdate(prevProps) {

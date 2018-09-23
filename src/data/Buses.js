@@ -9,12 +9,17 @@ function hash() {
     return testIndex++
 }
 
-function createJsonResult(result) {
-    if (result.ok) {
-        return result.json()
-    } else {
-        console.log("error while fetching " + result.url)
-    }
+function fetchFromServer(url) {
+    return fetch(url).then(result => {
+        if (result.ok) {
+            return result.json();
+        } else {
+            throw new Error('Network response was not ok.');
+        }
+    }).catch(error => {
+        console.log("error while fetching url %s: %s", url, error.message);
+        return "";
+    });
 }
 
 class Buses {
@@ -26,7 +31,7 @@ class Buses {
                 return {id: intVal, value: intVal, label: json[value] + '(' + value + ')'}
             });
         };
-        return fetch(stationUrl).then(result => createJsonResult(result)).then(json => stationsToValidJson(json))
+        return fetchFromServer(stationUrl).then(json => stationsToValidJson(json))
     }
 
     static getStationBuses(stationId) {
@@ -36,7 +41,7 @@ class Buses {
                 return {id: value.id, value: value.id, label: value.number}
             });
         };
-        return fetch(fetchUrl).then(result => createJsonResult(result)).then(json => busesToValidJson(json));
+        return fetchFromServer(fetchUrl).then(json => busesToValidJson(json));
     }
 
 
@@ -47,7 +52,7 @@ class Buses {
                 return {id: hash(val.time, val.count), time: val.time, count: val.count}
             })
         };
-        return fetch(fetchUrl).then(result => createJsonResult(result)).then(json => busesTimeToValidJson(json));
+        return fetchFromServer(fetchUrl).then(json => busesTimeToValidJson(json));
     }
 }
 
