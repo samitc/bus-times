@@ -26,6 +26,8 @@ class Stations extends Component {
                 onSelectedChanged={selectedChange}
                 noValue='בחר תחנה'
                 emptyFilterValue='אין תחנות'
+                selectOpened={this.props.selectOpened}
+                selectClosed={this.props.selectClosed}
             />
         )
     }

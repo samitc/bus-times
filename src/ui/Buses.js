@@ -31,6 +31,8 @@ class Buses extends Component {
                 onSelectedChanged={this.props.selectedChange}
                 noValue='בחר קו'
                 emptyFilterValue='אין קוים'
+                selectOpened={this.props.selectOpened}
+                selectClosed={this.props.selectClosed}
             />
         )
     }
