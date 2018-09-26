@@ -1,4 +1,5 @@
 .App {
+    direction: rtl;
     text-align: center;
 }
 
@@ -35,4 +36,14 @@
 .App-intro-shrink {
     margin: 5px;
     transition: margin 1s ease-out;
+}
+
+.Buses-times-list {
+    list-style: none;
+}
+
+/* desktop css */
+.Buses-times-list-desktop {
+    float: right;
+    width: 50%;
 }
