@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import ChoseBox from "./ChoseBox";
 import Buses from "../data/Buses";
+import {isMobile} from "../utils/env";
 
 class Stations extends Component {
     constructor() {
@@ -24,6 +25,7 @@ class Stations extends Component {
             <ChoseBox
                 items={this.state.stations}
                 onSelectedChanged={selectedChange}
+                numOfOptions={isMobile() ? 4 : 7}
                 noValue='בחר תחנה'
                 emptyFilterValue='אין תחנות'
                 selectOpened={this.props.selectOpened}

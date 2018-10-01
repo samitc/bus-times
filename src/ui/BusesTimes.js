@@ -1,5 +1,6 @@
 import React, {Component} from "react"
 import Buses from "../data/Buses";
+import {isMobile} from "../utils/env";
 
 class BusesTimes extends Component {
     constructor() {
@@ -37,17 +38,19 @@ class BusesTimes extends Component {
     }
 
     static busTimeToString(busTime, busCount) {
-        return 'האוטובוס אמור להגיע בשעה: ' + this.timeToString(busTime) + ' והוא הגיע ' + busCount + ' פעמים בשעה הזו';
+        let baseString = `האוטובוס אמור להגיע בשעה ${BusesTimes.timeToString(busTime)}`;
+        if (!isMobile()) {
+            baseString += ` והגיע בשעה הזו ${busCount} פעמים`;
+        }
+        return baseString;
     }
 
     render() {
         return (
-            <div>
-                <ul>
-                    {this.state.busesTimes.map(value =>
-                        <li key={value.id}>{BusesTimes.busTimeToString(value.time, value.count)}</li>)}
-                </ul>
-            </div>
+            <ul className={'Buses-times-list'}>
+                {this.state.busesTimes.map(value =>
+                    <li className={!isMobile()?'Buses-times-list-desktop':''} key={value.id}>{BusesTimes.busTimeToString(value.time, value.count)}</li>)}
+            </ul>
         )
     }
 }
