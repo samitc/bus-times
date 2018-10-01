@@ -30,6 +30,8 @@ class Stations extends Component {
                 emptyFilterValue='אין תחנות'
                 selectOpened={this.props.selectOpened}
                 selectClosed={this.props.selectClosed}
+                objectReplacement={[{from: 'ת.', to: 'תחנה'}]}
+                searchReplacement={[{from: 'ת ', to: 'ת. '}]}
             />
         )
     }

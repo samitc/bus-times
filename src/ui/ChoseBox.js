@@ -3,6 +3,33 @@ import React from "react";
 import Select from "react-select";
 
 class ChoseBox extends Component {
+    static stringMatch(str, match) {
+        return str.indexOf(match) !== -1;
+    }
+
+    selectFilter(object, search) {
+        if (ChoseBox.stringMatch(object.label, search)) {
+            return true;
+        }
+        else {
+            for (let replacement of this.props.objectReplacement) {
+                let from = replacement.from;
+                let to = replacement.to;
+                if (ChoseBox.stringMatch(object.label.replace(from, to), search)) {
+                    return true;
+                }
+            }
+            for (let replacement of this.props.searchReplacement) {
+                let from = replacement.from;
+                let to = replacement.to;
+                if (ChoseBox.stringMatch(object.label, search.replace(from, to))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     render() {
         let numOfOptions = 4;
         let SIZE_OF_OPTION = 34;
@@ -22,6 +49,7 @@ class ChoseBox extends Component {
                 onMenuClose={this.props.selectClosed}
                 hideSelectedOptions={true}
                 isRtl={true}
+                filterOption={this.selectFilter.bind(this)}
             />
         )
     }
