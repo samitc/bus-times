@@ -12,18 +12,22 @@ class ChoseBox extends Component {
             return true;
         }
         else {
-            for (let replacement of this.props.objectReplacement) {
-                let from = replacement.from;
-                let to = replacement.to;
-                if (ChoseBox.stringMatch(object.label.replace(from, to), search)) {
-                    return true;
+            if (this.props.objectReplacement != null) {
+                for (let replacement of this.props.objectReplacement) {
+                    let from = replacement.from;
+                    let to = replacement.to;
+                    if (ChoseBox.stringMatch(object.label.replace(from, to), search)) {
+                        return true;
+                    }
                 }
             }
-            for (let replacement of this.props.searchReplacement) {
-                let from = replacement.from;
-                let to = replacement.to;
-                if (ChoseBox.stringMatch(object.label, search.replace(from, to))) {
-                    return true;
+            if (this.props.searchReplacement != null) {
+                for (let replacement of this.props.searchReplacement) {
+                    let from = replacement.from;
+                    let to = replacement.to;
+                    if (ChoseBox.stringMatch(object.label, search.replace(from, to))) {
+                        return true;
+                    }
                 }
             }
         }
