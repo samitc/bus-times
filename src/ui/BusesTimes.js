@@ -49,10 +49,20 @@ class BusesTimes extends Component {
 
     static busCurTimeToString(busTime) {
         if (busTime === "") {
-            return `האוטובוס לא אמור להגיע בקרוב`
+            return `האוטובוס לא אמור להגיע בשעה הקרובה`
         }
         else {
-            return `האוטובוס הקרוב מגיע עוד כ ${busTime} דקות`
+            const baseString = `האוטובוס מגיע `;
+            const inString = `בעוד כ`;
+            if (busTime === 0) {
+                return baseString + `עכשיו`
+            }
+            else if (busTime === 1) {
+                return baseString + inString + `דקה`
+            }
+            else {
+                return baseString + inString + ` ${busTime} דקות`
+            }
         }
     }
 
