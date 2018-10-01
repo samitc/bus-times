@@ -6,13 +6,15 @@ class BusesTimes extends Component {
     constructor() {
         super();
         this.state = {
-            busesTimes: []
+            busesTimes: [],
+            curTime: null
         }
     }
 
     componentDidMount() {
         if (this.props.stationId !== null && this.props.busId != null) {
-            Buses.getBusesTimes(this.props.stationId, this.props.busId).then(busesTimes => this.setState({busesTimes}))
+            Buses.getBusesTimes(this.props.stationId, this.props.busId).then(busesTimes => this.setState({busesTimes}));
+            Buses.getBusesCurTimes(this.props.stationId, this.props.busId).then(curTime => this.setState({curTime}));
         }
     }
 
@@ -45,12 +47,25 @@ class BusesTimes extends Component {
         return baseString;
     }
 
+    static busCurTimeToString(busTime) {
+        if (busTime === "") {
+            return `האוטובוס לא אמור להגיע בקרוב`
+        }
+        else {
+            return `האוטובוס הקרוב מגיע עוד כ ${busTime} דקות`
+        }
+    }
+
     render() {
         return (
-            <ul className={'Buses-times-list'}>
-                {this.state.busesTimes.map(value =>
-                    <li className={!isMobile()?'Buses-times-list-desktop':''} key={value.id}>{BusesTimes.busTimeToString(value.time, value.count)}</li>)}
-            </ul>
+            <div>
+                {this.state.curTime != null && <h2>{BusesTimes.busCurTimeToString(this.state.curTime)}</h2>}
+                <ul className={'Buses-times-list'}>
+                    {this.state.busesTimes.map(value =>
+                        <li className={!isMobile() ? 'Buses-times-list-desktop' : ''}
+                            key={value.id}>{BusesTimes.busTimeToString(value.time, value.count)}</li>)}
+                </ul>
+            </div>
         )
     }
 }

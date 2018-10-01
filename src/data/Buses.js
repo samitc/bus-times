@@ -3,6 +3,7 @@ const stationUrl = BASE_URL + 'stations';
 const busesUrl = stationUrl + '/';
 const busesTimePrefixUrl = stationUrl + '/';
 const busesTimeSuffixUrl = '/bus/';
+const busesCurTimeUrl = '/time';
 let testIndex = 1;
 
 function hash() {
@@ -53,6 +54,11 @@ class Buses {
             })
         };
         return fetchFromServer(fetchUrl).then(json => busesTimeToValidJson(json));
+    }
+
+    static getBusesCurTimes(stationId, busId) {
+        const fetchUrl = busesTimePrefixUrl + stationId + busesTimeSuffixUrl + busId + busesCurTimeUrl;
+        return fetchFromServer(fetchUrl);
     }
 }
 
