@@ -3,24 +3,39 @@ import Buses from "../data/Buses";
 import {isMobile} from "../utils/env";
 
 class BusesTimes extends Component {
-    constructor() {
-        super();
+    constructor(props) {
+        const REFRESH_TIMEOUT = 10000
+        super(props);
         this.state = {
             busesTimes: [],
             curTime: null
         }
+        if (this.props.autoRefresh == null || this.props.autoRefresh === true) {
+            this.refreshInterval = setInterval(() => {
+                this.updateBusData();
+            }, REFRESH_TIMEOUT);
+        }
     }
 
-    componentDidMount() {
+    updateBusData() {
         if (this.props.stationId !== null && this.props.busId != null) {
             Buses.getBusesTimes(this.props.stationId, this.props.busId).then(busesTimes => this.setState({busesTimes}));
             Buses.getBusesCurTimes(this.props.stationId, this.props.busId).then(curTime => this.setState({curTime}));
         }
     }
 
+    componentDidMount() {
+        this.updateBusData();
+    }
+
     componentDidUpdate(prevProps) {
         if (this.props.stationId !== prevProps.stationId || this.props.busId !== prevProps.busId) {
-            this.componentDidMount()
+            this.updateBusData();
+        }
+    }
+    componentWillUnmount() {
+        if (this.refreshInterval != null) {
+            clearInterval(this.refreshInterval);
         }
     }
 
