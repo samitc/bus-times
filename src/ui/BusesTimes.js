@@ -8,7 +8,8 @@ class BusesTimes extends Component {
         super(props);
         this.state = {
             busesTimes: [],
-            curTime: null
+            curTime: null,
+            fullData: false
         };
         if (this.props.autoRefresh == null || this.props.autoRefresh === true) {
             this.refreshInterval = setInterval(() => {
@@ -39,6 +40,26 @@ class BusesTimes extends Component {
         if (this.refreshInterval != null) {
             clearInterval(this.refreshInterval);
         }
+    }
+
+    static filterBuses(fullData, buses) {
+        if (fullData) {
+            return buses;
+        }
+        let sum = 0;
+        let count = 0;
+        for (let bus of buses) {
+            sum += bus.count;
+            count++;
+        }
+        let newBuses = [];
+        const avg = (sum / count) / 2;
+        for (let bus of buses) {
+            if (bus.count > avg) {
+                newBuses.push(bus)
+            }
+        }
+        return newBuses;
     }
 
     static pad(d) {
@@ -89,7 +110,7 @@ class BusesTimes extends Component {
                 <h3>קו {this.props.busNumber}</h3>
                 {this.state.curTime != null && <h4>{BusesTimes.busCurTimeToString(this.state.curTime)}</h4>}
                 <ul className='Buses-times-list'>
-                    {this.state.busesTimes.map(value =>
+                    {BusesTimes.filterBuses(this.state.fullData, this.state.busesTimes).map(value =>
                         <li className={!isMobile() ? 'Buses-times-list-desktop' : ''}
                             key={value.id}>{BusesTimes.busTimeToString(value.time, value.count)}</li>)}
                 </ul>
