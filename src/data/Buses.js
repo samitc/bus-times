@@ -19,7 +19,6 @@ function fetchFromServer(url) {
         }
     }).catch(error => {
         console.log("error while fetching url %s: %s", url, error.message);
-        return "";
     });
 }
 
