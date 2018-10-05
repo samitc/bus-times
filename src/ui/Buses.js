@@ -10,22 +10,26 @@ class Buses extends Component {
         super();
         this.state = {
             buses: [],
-            selectedBus: null
+            selectedBus: []
         }
     }
 
     loadData(buses) {
-        let selectedBus = parseInt(Cookies.get('busId'), 10);
-        selectedBus = buses.find((val) => {
-            return selectedBus === val.value
-        });
-        if (selectedBus != null) {
-            this.props.selectedChange(selectedBus);
+        let selectedBus = [];
+        let selectedBusArr = Cookies.get('busId');
+        if (selectedBusArr != null) {
+            for (let bus of selectedBusArr.split('|')) {
+                bus = parseInt(bus, 10);
+                let selectBus = buses.find((val) => {
+                    return bus === val.value
+                });
+                selectedBus.push(selectBus)
+            }
+            if (selectedBus.length > 0) {
+                this.props.selectedChange(selectedBus);
+            }
         }
-        if (selectedBus === undefined) {
-            selectedBus = null;
-        }
-        this.setState({buses, selectedBus})
+        this.setState({buses, selectedBus});
     }
 
     componentDidMount() {
@@ -38,7 +42,7 @@ class Buses extends Component {
         if (this.props.stationId !== prevProps.stationId) {
             this.setState({buses: [], selectedBus: null});
             if (prevProps.stationId != null) {
-                Cookies.set('busId', null);
+                Cookies.remove('busId');
             }
             this.componentDidMount()
         }
@@ -47,7 +51,10 @@ class Buses extends Component {
     render() {
         const busSelect = (bus) => {
             this.setState({selectedBus: bus});
-            Cookies.set('busId', bus.value);
+            let busesId = bus.map(busJ => {
+                return busJ.value
+            });
+            Cookies.set('busId', busesId.join("|"));
             this.props.selectedChange(bus);
         };
         return (
@@ -60,6 +67,7 @@ class Buses extends Component {
                 selectOpened={this.props.selectOpened}
                 selectClosed={this.props.selectClosed}
                 value={this.state.selectedBus}
+                multi={true}
             />
         )
     }

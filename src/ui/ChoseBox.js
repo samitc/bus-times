@@ -52,6 +52,7 @@ class ChoseBox extends Component {
                 onMenuOpen={this.props.selectOpened}
                 onMenuClose={this.props.selectClosed}
                 value={this.props.value}
+                isMulti={this.props.multi}
                 hideSelectedOptions={true}
                 isRtl={true}
                 filterOption={this.selectFilter.bind(this)}

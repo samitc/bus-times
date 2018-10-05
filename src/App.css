@@ -38,6 +38,10 @@
     transition: margin 1s ease-out;
 }
 
+.Buses-times {
+    clear: both;
+}
+
 .Buses-times-list {
     list-style: none;
     padding-inline-start: 0px;

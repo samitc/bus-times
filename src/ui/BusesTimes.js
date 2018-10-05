@@ -85,9 +85,10 @@ class BusesTimes extends Component {
 
     render() {
         return (
-            <div>
-                {this.state.curTime != null && <h2>{BusesTimes.busCurTimeToString(this.state.curTime)}</h2>}
-                <ul className={'Buses-times-list'}>
+            <div className='Buses-times'>
+                <h3>קו {this.props.busNumber}</h3>
+                {this.state.curTime != null && <h4>{BusesTimes.busCurTimeToString(this.state.curTime)}</h4>}
+                <ul className='Buses-times-list'>
                     {this.state.busesTimes.map(value =>
                         <li className={!isMobile() ? 'Buses-times-list-desktop' : ''}
                             key={value.id}>{BusesTimes.busTimeToString(value.time, value.count)}</li>)}

@@ -11,15 +11,15 @@ class App extends Component {
     constructor() {
         super();
         this.isMobile = isMobile();
-        this.state = {stationId: null, busId: null, hasKeyboard: false};
+        this.state = {stationId: null, buses: [], hasKeyboard: false};
     }
 
     render() {
         const stationChange = (stationId) => {
-            this.setState({stationId: stationId, busId: null})
+            this.setState({stationId: stationId, buses: []})
         };
-        const busChange = (busId) => {
-            this.setState({busId: busId.value});
+        const busChange = (buses) => {
+            this.setState({buses});
         };
         const selectOpened = () => {
             if (this.isMobile) {
@@ -52,8 +52,10 @@ class App extends Component {
                     selectOpened={selectOpened}
                     selectClosed={selectClosed}
                 />
-                {this.state.busId !== null &&
-                <BusesTimes stationId={this.state.stationId} busId={this.state.busId}/>
+                {
+                    this.state.buses.map(bus => {
+                            return <BusesTimes key={bus.id} stationId={this.state.stationId} busId={bus.value} busNumber={bus.label}/>
+                    })
                 }
             </div>
         );
