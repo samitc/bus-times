@@ -51,6 +51,7 @@ class ChoseBox extends Component {
                 noOptionsMessage={() => this.props.emptyFilterValue}
                 onMenuOpen={this.props.selectOpened}
                 onMenuClose={this.props.selectClosed}
+                value={this.props.value}
                 hideSelectedOptions={true}
                 isRtl={true}
                 filterOption={this.selectFilter.bind(this)}
