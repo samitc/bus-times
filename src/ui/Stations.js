@@ -25,7 +25,7 @@ class Stations extends Component {
     }
 
     componentDidMount() {
-        Buses.getStations().then(stations => this.loadData(stations))
+        Buses.getStations().then(stations => this.loadData(stations)).catch(reason => console.log(reason))
     }
 
     render() {

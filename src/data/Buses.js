@@ -13,12 +13,10 @@ function hash() {
 function fetchFromServer(url) {
     return fetch(url).then(result => {
         if (result.ok) {
-            return result.json();
+            return result;
         } else {
             throw new Error('Network response was not ok.');
         }
-    }).catch(error => {
-        console.log("error while fetching url %s: %s", url, error.message);
     });
 }
 
@@ -31,7 +29,7 @@ class Buses {
                 return {id: intVal, value: intVal, label: json[value] + '(' + value + ')'}
             });
         };
-        return fetchFromServer(stationUrl).then(json => stationsToValidJson(json))
+        return fetchFromServer(stationUrl).then(result => result.json()).then(json => stationsToValidJson(json))
     }
 
     static getStationBuses(stationId) {
@@ -41,7 +39,7 @@ class Buses {
                 return {id: value.id, value: value.id, label: value.number}
             });
         };
-        return fetchFromServer(fetchUrl).then(json => busesToValidJson(json));
+        return fetchFromServer(fetchUrl).then(result => result.json()).then(json => busesToValidJson(json));
     }
 
 
@@ -52,12 +50,12 @@ class Buses {
                 return {id: hash(val.time, val.count), time: val.time, count: val.count}
             })
         };
-        return fetchFromServer(fetchUrl).then(json => busesTimeToValidJson(json));
+        return fetchFromServer(fetchUrl).then(result => result.json()).then(json => busesTimeToValidJson(json));
     }
 
     static getBusesCurTimes(stationId, busId) {
         const fetchUrl = busesTimePrefixUrl + stationId + busesTimeSuffixUrl + busId + busesCurTimeUrl;
-        return fetchFromServer(fetchUrl);
+        return fetchFromServer(fetchUrl).then(result => result.text());
     }
 }
 

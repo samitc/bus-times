@@ -19,8 +19,8 @@ class BusesTimes extends Component {
 
     updateBusData() {
         if (this.props.stationId !== null && this.props.busId != null) {
-            Buses.getBusesTimes(this.props.stationId, this.props.busId).then(busesTimes => this.setState({busesTimes}));
-            Buses.getBusesCurTimes(this.props.stationId, this.props.busId).then(curTime => this.setState({curTime}));
+            Buses.getBusesTimes(this.props.stationId, this.props.busId).then(busesTimes => this.setState({busesTimes})).catch(reason => console.log(reason));
+            Buses.getBusesCurTimes(this.props.stationId, this.props.busId).then(curTime => this.setState({curTime})).catch(reason => console.log(reason));
         }
     }
 

@@ -30,7 +30,7 @@ class Buses extends Component {
 
     componentDidMount() {
         if (this.props.stationId != null) {
-            DataBuses.getStationBuses(this.props.stationId).then(buses => this.loadData(buses))
+            DataBuses.getStationBuses(this.props.stationId).then(buses => this.loadData(buses)).catch(reason => console.log(reason))
         }
     }
 
