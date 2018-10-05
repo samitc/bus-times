@@ -3,6 +3,7 @@ import React from "react"
 import ChoseBox from "./ChoseBox";
 import {isMobile} from "../utils/env";
 import {default as DataBuses} from "../data/Buses"
+import Cookies from 'js-cookie'
 
 class Buses extends Component {
     constructor() {
@@ -13,15 +14,32 @@ class Buses extends Component {
         }
     }
 
+    loadData(buses) {
+        let selectedBus = parseInt(Cookies.get('busId'), 10);
+        selectedBus = buses.find((val) => {
+            return selectedBus === val.value
+        });
+        if (selectedBus != null) {
+            this.props.selectedChange(selectedBus);
+        }
+        if (selectedBus === undefined) {
+            selectedBus = null;
+        }
+        this.setState({buses, selectedBus})
+    }
+
     componentDidMount() {
-        this.setState({buses: [], selectedBus: null});
         if (this.props.stationId != null) {
-            DataBuses.getStationBuses(this.props.stationId).then(buses => this.setState({buses}))
+            DataBuses.getStationBuses(this.props.stationId).then(buses => this.loadData(buses))
         }
     }
 
     componentDidUpdate(prevProps) {
         if (this.props.stationId !== prevProps.stationId) {
+            this.setState({buses: [], selectedBus: null});
+            if (prevProps.stationId != null) {
+                Cookies.set('busId', null);
+            }
             this.componentDidMount()
         }
     }
@@ -29,6 +47,7 @@ class Buses extends Component {
     render() {
         const busSelect = (bus) => {
             this.setState({selectedBus: bus});
+            Cookies.set('busId', bus.value);
             this.props.selectedChange(bus);
         };
         return (
