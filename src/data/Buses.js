@@ -55,7 +55,12 @@ class Buses {
 
     static getBusesCurTimes(stationId, busId) {
         const fetchUrl = busesTimePrefixUrl + stationId + busesTimeSuffixUrl + busId + busesCurTimeUrl;
-        return fetchFromServer(fetchUrl).then(result => result.text());
+        return fetchFromServer(fetchUrl).then(result => result.text()).then(res => {
+            if (res !== '') {
+                res = parseInt(res, 10)
+            }
+            return res
+        });
     }
 }
 
