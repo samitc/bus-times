@@ -6,6 +6,7 @@ cache:
     - node_modules
 script:
   - npm test
+  - sed -i "/<head>/a<script async src="\""https://www.googletagmanager.com/gtag/js?id=UA-117962911-1"\""></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','UA-117962911-1');</script>" bus-times/public/index.html
   - sed -i '/"dependencies":\ {/i"homepage":\ "https://samitc.github.io/bus-times/",' package.json
   - SRC="const BASE_URL = '";DST="const BASE_URL = '$SERVER_URL';";sed -i "s^$SRC.*^$DST^" src/data/Buses.js
   - npm run build
