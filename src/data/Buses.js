@@ -1,6 +1,8 @@
 const BASE_URL = 'http://localhost:8088/';
 const stationUrl = BASE_URL + 'stations';
+const allBusesUrl = BASE_URL + 'buses';
 const busesUrl = stationUrl + '/';
+const busesStationUrl = allBusesUrl + '/';
 const busesTimePrefixUrl = stationUrl + '/';
 const busesTimeSuffixUrl = '/bus/';
 const busesCurTimeUrl = '/time';
@@ -20,25 +22,35 @@ function fetchFromServer(url) {
     });
 }
 
-class Buses {
+function busesToValidJson(arr) {
+    return arr.map(value => {
+        return {id: value.id, value: value.id, label: value.number}
+    });
+}
 
+function stationsToValidJson(json) {
+    return Object.keys(json).map(value => {
+        const intVal = parseInt(value, 10);
+        return {id: intVal, value: intVal, label: json[value] + '(' + value + ')'}
+    });
+}
+
+class Buses {
     static getStations() {
-        const stationsToValidJson = (json) => {
-            return Object.keys(json).map(value => {
-                const intVal = parseInt(value, 10);
-                return {id: intVal, value: intVal, label: json[value] + '(' + value + ')'}
-            });
-        };
         return fetchFromServer(stationUrl).then(result => result.json()).then(json => stationsToValidJson(json))
+    }
+
+    static getBuses() {
+        return fetchFromServer(allBusesUrl).then(result => result.json()).then(json => busesToValidJson(json))
+    }
+
+    static getBusesStations(busesIds) {
+        const fetchUrl = busesStationUrl + busesIds.join(",");
+        return fetchFromServer(fetchUrl).then(result => result.json()).then(json => stationsToValidJson(json))
     }
 
     static getStationBuses(stationId) {
         const fetchUrl = busesUrl + stationId;
-        const busesToValidJson = (arr) => {
-            return arr.map(value => {
-                return {id: value.id, value: value.id, label: value.number}
-            });
-        };
         return fetchFromServer(fetchUrl).then(result => result.json()).then(json => busesToValidJson(json));
     }
 

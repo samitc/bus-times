@@ -1,5 +1,4 @@
-import {Component} from "react"
-import React from "react"
+import React, {Component} from "react"
 import ChoseBox from "./ChoseBox";
 import {isMobile} from "../utils/env";
 import {default as DataBuses} from "../data/Buses"
@@ -24,12 +23,29 @@ class Buses extends Component {
                 let selectBus = buses.find((val) => {
                     return bus === val.value
                 });
-                selectedBus.push(selectBus)
+                if (selectBus != null) {
+                    selectedBus.push(selectBus)
+                }
             }
             if (selectedBus.length > 0) {
                 this.props.selectedChange(selectedBus);
             }
         }
+        buses.sort((a, b) => {
+            if (a.length !== b.length) {
+                return a.length - b.length;
+            }
+            let l = a.length;
+            let aL = a.label;
+            let bL = b.label;
+            if (aL[l - 1] < '0' || aL[l - 1] > '9') {
+                aL = aL.substring(0, l - 1)
+            }
+            if (bL[l - 1] < '0' || bL[l - 1] > '9') {
+                bL = bL.substring(0, l - 1)
+            }
+            return parseInt(aL, 10) - parseInt(bL, 10)
+        });
         if (selectedBus.length > 0) {
             chooseBusStation(this.props.stationId, selectedBus);
         }
@@ -39,6 +55,8 @@ class Buses extends Component {
     componentDidMount() {
         if (this.props.stationId != null) {
             DataBuses.getStationBuses(this.props.stationId).then(buses => this.loadData(buses)).catch(reason => console.log(reason))
+        } else {
+            DataBuses.getBuses().then(buses => this.loadData(buses)).catch(reason => console.log(reason))
         }
     }
 
@@ -54,6 +72,13 @@ class Buses extends Component {
 
     render() {
         const busSelect = (bus) => {
+            if (this.state.stationId == null) {
+                let newBus = [];
+                for (let b of bus) {
+                    newBus = newBus.concat(this.state.buses.filter(value => value.label === b.label))
+                }
+                bus = newBus
+            }
             if (bus.length > 0) {
                 chooseBusStation(this.props.stationId, bus);
             }
@@ -66,7 +91,7 @@ class Buses extends Component {
         };
         return (
             <ChoseBox
-                items={this.state.buses}
+                items={this.state.buses.filter((value, index, array) => !index || value.label !== array[index - 1].label)}
                 onSelectedChanged={busSelect}
                 numOfOptions={isMobile() ? 4 : 7}
                 noValue='בחר קו'
