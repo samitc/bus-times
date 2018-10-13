@@ -1,9 +1,10 @@
 import ReactGA from 'react-ga'
 
 const GA_ID = 'UA-000000000-0';
+const TEST_MODE = true;
 
 function initializeGA() {
-    ReactGA.initialize(GA_ID);
+    ReactGA.initialize(GA_ID, {testMode: TEST_MODE});
     ReactGA.pageview(window.location.pathname + window.location.search);
 }
 
