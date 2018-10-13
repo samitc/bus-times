@@ -5,11 +5,13 @@ import Buses from "./ui/Buses";
 import BusesTimes from "./ui/BusesTimes";
 import {isMobile} from './utils/env'
 import classNames from 'classnames';
+import {initializeGA} from "./utils/GA";
 
 class App extends Component {
 
     constructor() {
         super();
+        initializeGA();
         this.isMobile = isMobile();
         this.state = {stationId: null, buses: [], hasKeyboard: false};
     }

@@ -4,6 +4,7 @@ import ChoseBox from "./ChoseBox";
 import {isMobile} from "../utils/env";
 import {default as DataBuses} from "../data/Buses"
 import Cookies from 'js-cookie'
+import {chooseBusStation} from "../utils/GA";
 
 class Buses extends Component {
     constructor() {
@@ -29,6 +30,9 @@ class Buses extends Component {
                 this.props.selectedChange(selectedBus);
             }
         }
+        if (selectedBus.length > 0) {
+            chooseBusStation(this.props.stationId, selectedBus);
+        }
         this.setState({buses, selectedBus});
     }
 
@@ -50,6 +54,9 @@ class Buses extends Component {
 
     render() {
         const busSelect = (bus) => {
+            if (bus.length > 0) {
+                chooseBusStation(this.props.stationId, bus);
+            }
             this.setState({selectedBus: bus});
             let busesId = bus.map(busJ => {
                 return busJ.value

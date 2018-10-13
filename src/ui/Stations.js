@@ -3,6 +3,7 @@ import ChoseBox from "./ChoseBox";
 import Buses from "../data/Buses";
 import {isMobile} from "../utils/env";
 import Cookies from 'js-cookie'
+import {chooseStation} from "../utils/GA";
 
 class Stations extends Component {
     constructor() {
@@ -19,7 +20,8 @@ class Stations extends Component {
             return selectedValue === val.value
         });
         if (selectedValue != null) {
-            this.props.selectedChanged(selectedValue.value)
+            this.props.selectedChanged(selectedValue.value);
+            chooseStation(selectedValue.value);
         }
         this.setState({stations, selectedValue})
     }
@@ -30,6 +32,7 @@ class Stations extends Component {
 
     render() {
         const selectedChange = (selectedOption) => {
+            chooseStation(selectedOption.value);
             this.setState({selectedValue: selectedOption});
             Cookies.set('stationId', selectedOption.value);
             this.props.selectedChanged(selectedOption.value);
