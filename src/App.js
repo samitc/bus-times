@@ -6,6 +6,7 @@ import BusesTimes from "./ui/BusesTimes";
 import {isMobile} from './utils/env'
 import classNames from 'classnames';
 import {initializeGA} from "./utils/GA";
+import {stationBususHash} from "./data/Buses";
 
 class App extends Component {
 
@@ -13,12 +14,12 @@ class App extends Component {
         super();
         initializeGA();
         this.isMobile = isMobile();
-        this.state = {stationId: null, buses: [], hasKeyboard: false};
+        this.state = {stations: [], buses: [], hasKeyboard: false};
     }
 
     render() {
-        const stationChange = (stationId) => {
-            this.setState({stationId: stationId, buses: []})
+        const stationChange = (stations) => {
+            this.setState({stations, buses: []})
         };
         const busChange = (buses) => {
             this.setState({buses});
@@ -49,14 +50,16 @@ class App extends Component {
                     selectClosed={selectClosed}
                 />
                 <Buses
-                    stationId={this.state.stationId}
+                    stations={this.state.stations}
                     selectedChange={busChange}
                     selectOpened={selectOpened}
                     selectClosed={selectClosed}
                 />
                 {
                     this.state.buses.map(bus => {
-                            return <BusesTimes key={bus.id} stationId={this.state.stationId} busId={bus.value} busNumber={bus.label}/>
+                        return <BusesTimes key={stationBususHash(bus.stationId, bus.id)}
+                                           stationId={bus.stationId != null ? bus.stationId : this.state.stationId}
+                                           busId={bus.id} busNumber={bus.label}/>
                     })
                 }
             </div>
