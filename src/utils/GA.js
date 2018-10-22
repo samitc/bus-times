@@ -4,7 +4,7 @@ const GA_ID = 'UA-000000000-0';
 const TEST_MODE = true;
 
 function initializeGA() {
-    ReactGA.initialize(GA_ID, {testMode: TEST_MODE});
+    ReactGA.initialize(GA_ID, { testMode: TEST_MODE });
     ReactGA.pageview(window.location.pathname + window.location.search);
 }
 
@@ -12,9 +12,11 @@ function dataToString(data) {
     let strData;
     if (Array.isArray(data)) {
         const l = data.length;
-        strData = data[0].id.toString();
-        for (let i = 1; i < l; i++) {
-            strData += "," + data[i].id.toString();
+        if (l > 0) {
+            strData = data[0].id.toString();
+            for (let i = 1; i < l; i++) {
+                strData += "," + data[i].id.toString();
+            }
         }
     } else {
         strData = data
@@ -23,7 +25,7 @@ function dataToString(data) {
 }
 
 function chooseStation(station) {
-    ReactGA.event({category: 'Data', action: 'choose station', label: 'stationId' + dataToString(station)})
+    ReactGA.event({ category: 'Data', action: 'choose station', label: 'stationId' + dataToString(station) })
 }
 
 function chooseBusStation(station, bus) {
@@ -34,4 +36,4 @@ function chooseBusStation(station, bus) {
     })
 }
 
-export {initializeGA, chooseStation, chooseBusStation};
+export { initializeGA, chooseStation, chooseBusStation };

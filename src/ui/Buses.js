@@ -1,80 +1,72 @@
-import {Component} from "react"
-import React from "react"
-import ChoseBox from "./ChoseBox";
-import {isMobile} from "../utils/env";
-import {default as DataBuses} from "../data/Buses"
-import Cookies from 'js-cookie'
+import React, {Component} from "react"
+import {default as DataBuses, stationBusesHash} from "../data/Buses"
 import {chooseBusStation} from "../utils/GA";
+import Select from "./Select";
 
 class Buses extends Component {
-    constructor() {
-        super();
-        this.state = {
-            buses: [],
-            selectedBus: []
-        }
-    }
-
-    loadData(buses) {
-        let selectedBus = [];
-        let selectedBusArr = Cookies.get('busId');
-        if (selectedBusArr != null) {
-            for (let bus of selectedBusArr.split('|')) {
-                bus = parseInt(bus, 10);
-                let selectBus = buses.find((val) => {
-                    return bus === val.value
-                });
-                selectedBus.push(selectBus)
+    static sortBuses(buses) {
+        buses.sort((a, b) => {
+            let aL = a.label;
+            let bL = b.label;
+            if (aL.length !== bL.length) {
+                return aL.length - bL.length;
             }
-            if (selectedBus.length > 0) {
-                this.props.selectedChange(selectedBus);
+            let l = aL;
+            if (aL[l - 1] < '0' || aL[l - 1] > '9') {
+                aL = aL.substring(0, l - 1)
             }
-        }
-        if (selectedBus.length > 0) {
-            chooseBusStation(this.props.stationId, selectedBus);
-        }
-        this.setState({buses, selectedBus});
-    }
-
-    componentDidMount() {
-        if (this.props.stationId != null) {
-            DataBuses.getStationBuses(this.props.stationId).then(buses => this.loadData(buses)).catch(reason => console.log(reason))
-        }
-    }
-
-    componentDidUpdate(prevProps) {
-        if (this.props.stationId !== prevProps.stationId) {
-            this.setState({buses: [], selectedBus: null});
-            if (prevProps.stationId != null) {
-                Cookies.remove('busId');
+            if (bL[l - 1] < '0' || bL[l - 1] > '9') {
+                bL = bL.substring(0, l - 1)
             }
-            this.componentDidMount()
-        }
+            return parseInt(aL, 10) - parseInt(bL, 10)
+        });
     }
 
     render() {
+        let isFirstRead = true;
+        const busHash = (stationId, busId) => stationBusesHash(stationId, busId);
         const busSelect = (bus) => {
-            if (bus.length > 0) {
-                chooseBusStation(this.props.stationId, bus);
-            }
-            this.setState({selectedBus: bus});
-            let busesId = bus.map(busJ => {
-                return busJ.value
-            });
-            Cookies.set('busId', busesId.join("|"));
+            chooseBusStation(this.props.stations, bus);
             this.props.selectedChange(bus);
         };
+        const readData = (callback) => {
+            if (!this.props.isBusesFilter || isFirstRead) {
+                if (this.props.stations != null && this.props.stations.length > 0) {
+                    let prom = [];
+                    for (let station of this.props.stations) {
+                        prom.push(DataBuses.getStationBuses(station.id).then(buses => {
+                            for (let bus of buses) {
+                                bus.stationId = station.id;
+                                bus.value = busHash(bus.stationId, bus.id)
+                            }
+                            return buses
+                        }).catch(reason => console.log(reason)));
+                    }
+                    Promise.all(prom).then(busesArrays => {
+                        let buses = [];
+                        for (let busArray of busesArrays) {
+                            buses = buses.concat(busArray)
+                        }
+                        callback(buses)
+                    })
+                } else {
+                    DataBuses.getBuses().then(buses => callback(buses)).catch(reason => console.log(reason))
+                }
+                isFirstRead = false;
+            }
+        };
         return (
-            <ChoseBox
-                items={this.state.buses}
-                onSelectedChanged={busSelect}
-                numOfOptions={isMobile() ? 4 : 7}
+            <Select
+                readData={readData}
+                selectedChange={busSelect}
+                setItems={Buses.sortBuses}
+                values={this.props.isBusesFilter ? null : this.props.stations}
+                isMulti={!this.props.isBusesFilter}
+                cookieName='buses'
                 noValue='בחר קו'
                 emptyFilterValue='אין קוים'
                 selectOpened={this.props.selectOpened}
                 selectClosed={this.props.selectClosed}
-                value={this.state.selectedBus}
-                multi={true}
             />
         )
     }
