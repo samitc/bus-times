@@ -34,7 +34,7 @@ function stationsToValidJson(json) {
         return {id: intVal, value: intVal, label: json[value] + '(' + value + ')'}
     });
 }
-export function stationBususHash(stationId,busId){
+export function stationBusesHash(stationId, busId){
     return (stationId << 16) | busId;
 }
 

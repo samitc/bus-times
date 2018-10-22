@@ -6,23 +6,41 @@ import BusesTimes from "./ui/BusesTimes";
 import {isMobile} from './utils/env'
 import classNames from 'classnames';
 import {initializeGA} from "./utils/GA";
-import {stationBususHash} from "./data/Buses";
+import {stationBusesHash} from "./data/Buses";
+import Cookies from "js-cookie";
 
 class App extends Component {
+    static IS_BUSES_FILTER_COOKIE_NAME = 'isBusesFilter';
 
     constructor() {
         super();
         initializeGA();
         this.isMobile = isMobile();
+        this.isBusesFilter = Cookies.get(App.IS_BUSES_FILTER_COOKIE_NAME) || "false";
+        this.isBusesFilter = this.isBusesFilter === "true";
         this.state = {stations: [], buses: [], hasKeyboard: false};
+    }
+
+    static createBusesTimes(station, bus) {
+        return <BusesTimes key={stationBusesHash(station === null ? bus.stationId : station.id, bus.id)}
+                           stationId={bus.stationId != null ? bus.stationId : station.id}
+                           busId={bus.id} busNumber={bus.label}/>
     }
 
     render() {
         const stationChange = (stations) => {
-            this.setState({stations, buses: []})
+            this.setState({stations})
         };
         const busChange = (buses) => {
-            this.setState({buses});
+            if (this.state.stations.length === 0) {
+                this.isBusesFilter = true
+            }
+            if (buses.length === 0) {
+                this.isBusesFilter = false
+            }
+            Cookies.set(App.IS_BUSES_FILTER_COOKIE_NAME, this.isBusesFilter);
+            let stations = this.isBusesFilter ? [] : this.state.stations;
+            this.setState({stations, buses});
         };
         const selectOpened = () => {
             if (this.isMobile) {
@@ -45,22 +63,33 @@ class App extends Component {
                     בחרו תחנה ומספר קו והזמנים יופיעו למטה
                 </p>
                 <Stations
+                    buses={this.state.buses}
+                    isBusesFilter={this.isBusesFilter}
                     selectedChanged={stationChange}
                     selectOpened={selectOpened}
                     selectClosed={selectClosed}
                 />
                 <Buses
                     stations={this.state.stations}
+                    isBusesFilter={this.isBusesFilter}
                     selectedChange={busChange}
                     selectOpened={selectOpened}
                     selectClosed={selectClosed}
                 />
                 {
-                    this.state.buses.map(bus => {
-                        return <BusesTimes key={stationBususHash(bus.stationId, bus.id)}
-                                           stationId={bus.stationId != null ? bus.stationId : this.state.stationId}
-                                           busId={bus.id} busNumber={bus.label}/>
-                    })
+                    this.isBusesFilter ?
+                        this.state.buses.length > 0 ?
+                            this.state.stations.map(station => {
+                                return App.createBusesTimes(station, this.state.buses[0])
+                            }) : null
+                        :
+                        this.state.buses.map(bus => {
+                            if (bus.stationId != null) {
+                                return App.createBusesTimes(null, bus)
+                            } else {
+                                return null
+                            }
+                        })
                 }
             </div>
         );

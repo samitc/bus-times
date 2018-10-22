@@ -1,5 +1,5 @@
 import React, {Component} from "react"
-import {default as DataBuses, stationBususHash} from "../data/Buses"
+import {default as DataBuses, stationBusesHash} from "../data/Buses"
 import {chooseBusStation} from "../utils/GA";
 import Select from "./Select";
 
@@ -23,22 +23,25 @@ class Buses extends Component {
     }
 
     render() {
-        const busHash = (stationId, busId) => stationBususHash(stationId,busId);
+        let isFirstRead = true;
+        const busHash = (stationId, busId) => stationBusesHash(stationId, busId);
         const busSelect = (bus) => {
             chooseBusStation(this.props.stations, bus);
             this.props.selectedChange(bus);
         };
         const readData = (callback) => {
-            if (this.props.stations != null && this.props.stations.length > 0) {
-                let prom = [];
-                for (let station of this.props.stations) {
-                    prom.push(DataBuses.getStationBuses(station.id).then(buses => {
-                        for (let bus of buses) {
-                            bus.stationId = station.id;
-                            bus.value = busHash(bus.stationId, bus.id)
-                        }
-                        return buses
-                    }).catch(reason => console.log(reason)));
+            if (!this.props.isBusesFilter || isFirstRead) {
+                if (this.props.stations != null && this.props.stations.length > 0) {
+                    let prom = [];
+                    for (let station of this.props.stations) {
+                        prom.push(DataBuses.getStationBuses(station.id).then(buses => {
+                            for (let bus of buses) {
+                                bus.stationId = station.id;
+                                bus.value = busHash(bus.stationId, bus.id)
+                            }
+                            return buses
+                        }).catch(reason => console.log(reason)));
+                    }
                     Promise.all(prom).then(busesArrays => {
                         let buses = [];
                         for (let busArray of busesArrays) {
@@ -46,9 +49,10 @@ class Buses extends Component {
                         }
                         callback(buses)
                     })
+                } else {
+                    DataBuses.getBuses().then(buses => callback(buses)).catch(reason => console.log(reason))
                 }
-            } else {
-                DataBuses.getBuses().then(buses => callback(buses)).catch(reason => console.log(reason))
+                isFirstRead = false;
             }
         };
         return (
@@ -56,7 +60,8 @@ class Buses extends Component {
                 readData={readData}
                 selectedChange={busSelect}
                 setItems={Buses.sortBuses}
-                values={this.props.stations}
+                values={this.props.isBusesFilter ? null : this.props.stations}
+                isMulti={!this.props.isBusesFilter}
                 cookieName='buses'
                 noValue='בחר קו'
                 emptyFilterValue='אין קוים'

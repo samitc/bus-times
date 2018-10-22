@@ -10,12 +10,19 @@ class Stations extends Component {
             this.props.selectedChanged(selectedOption);
         };
         const readData = (callback) => {
-            Buses.getStations().then(stations => callback(stations)).catch(reason => console.log(reason))
+            let fetch;
+            if (this.props.isBusesFilter && this.props.buses.length > 0) {
+                fetch = Buses.getBusesStations(this.props.buses.map((bus) => bus.id))
+            } else {
+                fetch = Buses.getStations()
+            }
+            fetch.then(stations => callback(stations)).catch(reason => console.log(reason))
         };
         return (
             <Select
                 readData={readData}
                 selectedChange={selectedChange}
+                values={this.props.isBusesFilter === true ? this.props.buses : null}
                 cookieName='stations'
                 noValue='בחר תחנה'
                 emptyFilterValue='אין תחנות'

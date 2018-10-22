@@ -49,15 +49,15 @@ class Select extends Component {
 
     componentDidUpdate(prevProps) {
         if (this.props.values !== prevProps.values) {
-            if (prevProps.values != null) {
-                Cookies.remove(this.props.cookieName);
-            }
             this.updateComponent()
         }
     }
 
     render() {
         const itemSelect = (items) => {
+            if (!Array.isArray(items)) {
+                items = [items]
+            }
             if (items.length === 0) {
                 Cookies.remove(this.props.cookieName)
             } else {
@@ -81,7 +81,7 @@ class Select extends Component {
                 selectClosed={this.props.selectClosed}
                 objectReplacement={this.props.objectReplacement}
                 searchReplacement={this.props.searchReplacement}
-                multi={true}
+                multi={this.props.isMulti == null ? true : this.props.isMulti}
             />
         )
     }
