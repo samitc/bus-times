@@ -9,7 +9,8 @@ class Select extends Component {
         super(props);
         this.state = {
             items: [],
-            selectedItems: []
+            selectedItems: [],
+            newItem: null
         }
     }
 
@@ -34,7 +35,8 @@ class Select extends Component {
 
     updateComponent() {
         if (this.props.values != null && this.props.values.length === 0) {
-            this.setState({items: [], selectedItems: []})
+            this.setState({items: [], selectedItems: []});
+            this.props.selectedChange([]);
         }
         const loadData = (items) => {
             this.loadData(items);
@@ -66,15 +68,28 @@ class Select extends Component {
                 });
                 Cookies.set(this.props.cookieName, itemsIds.join("|"));
             }
+            let newItemIndex = items.indexOf(this.state.newItem);
+            let newItem = newItemIndex === -1 ? null : items[newItemIndex];
             this.props.selectedChange(items);
-            this.setState({selectedItems: items});
+            this.setState({selectedItems: items, newItem});
+        };
+        const inputChange = (input) => {
+            this.setState({newItem: {label: input, value: input}});
+        };
+        const createItems = () => {
+            let items = this.state.items;
+            if (this.props.newOptionAvilible && this.state.newItem !== null) {
+                items = items.concat(this.state.newItem)
+            }
+            return items;
         };
         return (
             <ChoseBox
-                items={this.state.items}
+                items={createItems()}
                 value={this.state.selectedItems}
                 onSelectedChanged={itemSelect}
                 numOfOptions={isMobile() ? 4 : 7}
+                onInputChange={inputChange}
                 noValue={this.props.noValue}
                 emptyFilterValue={this.props.emptyFilterValue}
                 selectOpened={this.props.selectOpened}

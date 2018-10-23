@@ -41,6 +41,11 @@ class ChoseBox extends Component {
         if (this.props.numOfOptions != null) {
             numOfOptions = this.props.numOfOptions;
         }
+        const inputChange = (inp, action) => {
+            if (action.action === "input-change") {
+                this.props.onInputChange(inp)
+            }
+        };
         return (
             this.props.items !== null &&
             <Select
@@ -56,6 +61,7 @@ class ChoseBox extends Component {
                 hideSelectedOptions={true}
                 isRtl={true}
                 filterOption={this.selectFilter.bind(this)}
+                onInputChange={inputChange}
             />
         )
     }

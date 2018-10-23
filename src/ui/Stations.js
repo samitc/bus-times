@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import Buses from "../data/Buses";
-import {chooseStation} from "../utils/GA";
+import {chooseStation, getObjectId} from "../utils/GA";
 import Select from "./Select";
 
 class Stations extends Component {
@@ -12,7 +12,7 @@ class Stations extends Component {
         const readData = (callback) => {
             let fetch;
             if (this.props.isBusesFilter && this.props.buses.length > 0) {
-                fetch = Buses.getBusesStations(this.props.buses.map((bus) => bus.id))
+                fetch = Buses.getBusesStations(this.props.buses.map((bus) => getObjectId(bus)))
             } else {
                 fetch = Buses.getStations()
             }
@@ -30,6 +30,7 @@ class Stations extends Component {
                 selectClosed={this.props.selectClosed}
                 objectReplacement={[{from: 'ת.', to: 'תחנה'}]}
                 searchReplacement={[{from: 'ת ', to: 'ת. '}]}
+                newOptionAvilible={true}
             />
         )
     }
