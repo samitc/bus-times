@@ -1,6 +1,6 @@
 import React, {Component} from "react"
 import {default as DataBuses, stationBusesHash} from "../data/Buses"
-import {chooseBusStation} from "../utils/GA";
+import {chooseBusStation, getObjectId} from "../utils/GA";
 import Select from "./Select";
 
 class Buses extends Component {
@@ -34,13 +34,16 @@ class Buses extends Component {
                 if (this.props.stations != null && this.props.stations.length > 0) {
                     let prom = [];
                     for (let station of this.props.stations) {
-                        prom.push(DataBuses.getStationBuses(station.id).then(buses => {
+                        prom.push(DataBuses.getStationBuses(getObjectId(station)).then(buses => {
                             for (let bus of buses) {
-                                bus.stationId = station.id;
+                                bus.stationId = getObjectId(station);
                                 bus.value = busHash(bus.stationId, bus.id)
                             }
                             return buses
-                        }).catch(reason => console.log(reason)));
+                        }).catch(reason => {
+                            console.log(reason);
+                            return []
+                        }));
                     }
                     Promise.all(prom).then(busesArrays => {
                         let buses = [];
@@ -67,6 +70,7 @@ class Buses extends Component {
                 emptyFilterValue='אין קוים'
                 selectOpened={this.props.selectOpened}
                 selectClosed={this.props.selectClosed}
+                newOptionAvilible={this.props.stations.length !== 0}
             />
         )
     }
