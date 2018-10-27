@@ -6,17 +6,31 @@ cache:
     - node_modules
 script:
   - npm test
-  - sed -i '/"dependencies":\ {/i"homepage":\ "https://samitc.github.io/bus-times/",' package.json
+before_deploy:
+  - npm install netlify-cli -g
+  - sed -i '/"dependencies":\ {/i"homepage":\ ".",' package.json
   - SRC="const BASE_URL = '";DST="const BASE_URL = '$SERVER_URL';";sed -i "s^$SRC.*^$DST^" src/data/Buses.js
   - SRC="const GA_ID = '";DST="const GA_ID = '$GAID';";sed -i "s^$SRC.*^$DST^" src/utils/GA.js
   - SRC="const TEST_MODE = ";DST="const TEST_MODE = false;";sed -i "s^$SRC.*^$DST^" src/utils/GA.js
   - npm run build
+  
 deploy:
-  provider: pages
-  local_dir: build
-  skip_cleanup: true
-  github_token: $GITHUB_TOKEN
-  committer_from_gh: true
-  target_branch: gh-pages
-  on:
-    branch: master
+  - provider: pages
+    local_dir: build
+    skip_cleanup: true
+    github_token: $GITHUB_TOKEN
+    committer_from_gh: true
+    target_branch: gh-pages
+    on:
+      branch: master
+  - provider: script
+    script: netlify deploy -s $NETLIFY_SITE_ID --auth $NETLIFY_TOKEN --message "`git log --pretty=oneline -1`" -p --dir ./build
+    skip_cleanup: true
+    on:
+      branch: master
+  - provider: script
+    script: netlify deploy -s $NETLIFY_SITE_ID --auth $NETLIFY_TOKEN --message "`git log --pretty=oneline -1`" --dir ./build
+    skip_cleanup: true
+    on:
+      all_branches: true
+      condition: $TRAVIS_BRANCH != "master"
