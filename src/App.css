@@ -47,6 +47,19 @@
     padding-inline-start: 0px;
 }
 
+.Ltr-align {
+    direction: ltr;
+}
+
+.Full-width {
+    width: 100%;
+}
+
+.Flex-display {
+    display: flex;
+    flex-direction: row;
+}
+
 /* desktop css */
 .Buses-times-list-desktop {
     float: right;

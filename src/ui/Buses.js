@@ -52,7 +52,7 @@ class Buses extends Component {
                         }
                         callback(buses)
                     })
-                } else {
+                } else if (this.props.isBusesFilter) {
                     DataBuses.getBuses().then(buses => callback(buses)).catch(reason => console.log(reason))
                 }
                 isFirstRead = false;
