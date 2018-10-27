@@ -7,18 +7,14 @@ import {isMobile} from './utils/env'
 import classNames from 'classnames';
 import {initializeGA} from "./utils/GA";
 import {stationBusesHash} from "./data/Buses";
-import Cookies from "js-cookie";
+import Switch from 'react-switch'
 
 class App extends Component {
-    static IS_BUSES_FILTER_COOKIE_NAME = 'isBusesFilter';
-
     constructor() {
         super();
         initializeGA();
         this.isMobile = isMobile();
-        this.isBusesFilter = Cookies.get(App.IS_BUSES_FILTER_COOKIE_NAME) || "false";
-        this.isBusesFilter = this.isBusesFilter === "true";
-        this.state = {stations: [], buses: [], hasKeyboard: false};
+        this.state = {stations: [], buses: [], hasKeyboard: false, isBusesFilter: false};
     }
 
     static createBusesTimes(station, bus) {
@@ -32,14 +28,7 @@ class App extends Component {
             this.setState({stations})
         };
         const busChange = (buses) => {
-            if (this.state.stations.length === 0) {
-                this.isBusesFilter = true
-            }
-            if (buses.length === 0) {
-                this.isBusesFilter = false
-            }
-            Cookies.set(App.IS_BUSES_FILTER_COOKIE_NAME, this.isBusesFilter);
-            let stations = this.isBusesFilter ? [] : this.state.stations;
+            let stations = this.state.isBusesFilter ? [] : this.state.stations;
             this.setState({stations, buses});
         };
         const selectOpened = () => {
@@ -51,6 +40,9 @@ class App extends Component {
             if (this.isMobile) {
                 this.setState({hasKeyboard: false});
             }
+        };
+        const handleBusesFilterChange = () => {
+            this.setState({stations: [], buses: [], isBusesFilter: !this.state.isBusesFilter})
         };
         const headerClasses = classNames('App-header', {'App-header-shrink': this.state.hasKeyboard});
         const introClasses = classNames('App-intro', {'App-intro-shrink': this.state.hasKeyboard});
@@ -64,20 +56,40 @@ class App extends Component {
                 </p>
                 <Stations
                     buses={this.state.buses}
-                    isBusesFilter={this.isBusesFilter}
+                    isBusesFilter={this.state.isBusesFilter}
                     selectedChanged={stationChange}
                     selectOpened={selectOpened}
                     selectClosed={selectClosed}
                 />
-                <Buses
-                    stations={this.state.stations}
-                    isBusesFilter={this.isBusesFilter}
-                    selectedChange={busChange}
-                    selectOpened={selectOpened}
-                    selectClosed={selectClosed}
-                />
+                <div className='Flex-display'>
+                    <div className='Full-width'>
+                        <Buses
+                            stations={this.state.stations}
+                            isBusesFilter={this.state.isBusesFilter}
+                            selectedChange={busChange}
+                            selectOpened={selectOpened}
+                            selectClosed={selectClosed}
+                        />
+                    </div>
+                    <label>סנן לפי אוטובוס</label>
+                    <Switch
+                        checked={this.state.isBusesFilter}
+                        onChange={handleBusesFilterChange}
+                        onColor="#86d3ff"
+                        onHandleColor="#2693e6"
+                        handleDiameter={30}
+                        uncheckedIcon={false}
+                        checkedIcon={false}
+                        boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+                        activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
+                        height={20}
+                        width={48}
+                        className="Ltr-align"
+                        id="material-switch"
+                    />
+                </div>
                 {
-                    this.isBusesFilter ?
+                    this.state.isBusesFilter ?
                         this.state.buses.length > 0 ?
                             this.state.stations.map(station => {
                                 return App.createBusesTimes(station, this.state.buses[0])

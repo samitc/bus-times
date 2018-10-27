@@ -10,13 +10,17 @@ class Stations extends Component {
             this.props.selectedChanged(selectedOption);
         };
         const readData = (callback) => {
-            let fetch;
-            if (this.props.isBusesFilter && this.props.buses.length > 0) {
-                fetch = Buses.getBusesStations(this.props.buses.map((bus) => getObjectId(bus)))
+            let fetch = null;
+            if (this.props.isBusesFilter) {
+                if (this.props.buses.length > 0) {
+                    fetch = Buses.getBusesStations(this.props.buses.map((bus) => getObjectId(bus)))
+                }
             } else {
                 fetch = Buses.getStations()
             }
-            fetch.then(stations => callback(stations)).catch(reason => console.log(reason))
+            if (fetch !== null) {
+                fetch.then(stations => callback(stations)).catch(reason => console.log(reason))
+            }
         };
         return (
             <Select
