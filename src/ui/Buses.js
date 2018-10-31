@@ -37,6 +37,7 @@ class Buses extends Component {
                         prom.push(DataBuses.getStationBuses(getObjectId(station)).then(buses => {
                             for (let bus of buses) {
                                 bus.stationId = getObjectId(station);
+                                bus.station = station;
                                 bus.value = busHash(bus.stationId, bus.id)
                             }
                             return buses

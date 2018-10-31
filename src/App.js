@@ -8,6 +8,7 @@ import classNames from 'classnames';
 import {initializeGA} from "./utils/GA";
 import {stationBusesHash} from "./data/Buses";
 import Switch from 'react-switch'
+import CurBusesTimes from "./ui/CurBusesTimes";
 
 class App extends Component {
     constructor() {
@@ -15,12 +16,6 @@ class App extends Component {
         initializeGA();
         this.isMobile = isMobile();
         this.state = {stations: [], buses: [], hasKeyboard: false, isBusesFilter: false};
-    }
-
-    static createBusesTimes(station, bus) {
-        return <BusesTimes key={stationBusesHash(station === null ? bus.stationId : station.id, bus.id)}
-                           stationId={bus.stationId != null ? bus.stationId : station.id}
-                           busId={bus.id} busNumber={bus.label}/>
     }
 
     render() {
@@ -43,6 +38,48 @@ class App extends Component {
         };
         const handleBusesFilterChange = () => {
             this.setState({stations: [], buses: [], isBusesFilter: !this.state.isBusesFilter})
+        };
+        const iterateData = () => {
+            let data = null;
+            if (this.state.isBusesFilter) {
+                if (this.state.buses.length > 0) {
+                    data = this.state.stations.map(station => {
+                            return {'station': station, 'bus': this.state.buses[0]};
+                        }
+                    );
+                }
+            } else {
+                let tData = [];
+                for (let bus of this.state.buses) {
+                    if (bus.stationId != null) {
+                        tData.push({'station': null, 'bus': bus});
+                    }
+                }
+                if (tData.length > 0) {
+                    data = tData;
+                }
+            }
+            return data;
+        };
+        const printBusesTimes = () => {
+            let data = iterateData();
+            if (data !== null) {
+                return data.map(value => <BusesTimes
+                    key={stationBusesHash(value.station === null ? value.bus.stationId : value.station.id, value.bus.id)}
+                    stationId={value.bus.stationId != null ? value.bus.stationId : value.station.id}
+                    busId={value.bus.id} busNumber={value.bus.label}/>)
+            }
+            return null;
+        };
+        const printCurBusesTimes = () => {
+            let data = iterateData();
+            if (data !== null) {
+                return data.map(value => <CurBusesTimes
+                    key={stationBusesHash(value.station === null ? value.bus.stationId : value.station.id, value.bus.id)}
+                    stationId={value.bus.stationId != null ? value.bus.stationId : value.station.id}
+                    busId={value.bus.id} busNumber={value.bus.label}
+                    stationName={value.station == null ? value.bus.station.name : value.station.name}/>)
+            }
         };
         const headerClasses = classNames('App-header', {'App-header-shrink': this.state.hasKeyboard});
         const introClasses = classNames('App-intro', {'App-intro-shrink': this.state.hasKeyboard});
@@ -89,19 +126,10 @@ class App extends Component {
                     />
                 </div>
                 {
-                    this.state.isBusesFilter ?
-                        this.state.buses.length > 0 ?
-                            this.state.stations.map(station => {
-                                return App.createBusesTimes(station, this.state.buses[0])
-                            }) : null
-                        :
-                        this.state.buses.map(bus => {
-                            if (bus.stationId != null) {
-                                return App.createBusesTimes(null, bus)
-                            } else {
-                                return null
-                            }
-                        })
+                    printCurBusesTimes()
+                }
+                {
+                    printBusesTimes()
                 }
             </div>
         );
