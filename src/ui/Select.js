@@ -74,12 +74,17 @@ class Select extends Component {
             this.setState({selectedItems: items, newItem});
         };
         const inputChange = (input) => {
-            this.setState({newItem: {label: input, value: input}});
+            let nInput = parseInt(input, 10);
+            if (!isNaN(nInput)) {
+                this.setState({newItem: {label: input, value: nInput}});
+            }
         };
         const createItems = () => {
             let items = this.state.items;
             if (this.props.newOptionAvilible && this.state.newItem !== null) {
-                items = items.concat(this.state.newItem)
+                if (items.find(value => value.value === this.state.newItem.value) === undefined) {
+                    items = items.concat(this.state.newItem)
+                }
             }
             return items;
         };
