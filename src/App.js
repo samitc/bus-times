@@ -40,45 +40,61 @@ class App extends Component {
             this.setState({stations: [], buses: [], isBusesFilter: !this.state.isBusesFilter})
         };
         const iterateData = () => {
-            let data = null;
+            let data = new Map();
             if (this.state.isBusesFilter) {
                 if (this.state.buses.length > 0) {
-                    data = this.state.stations.map(station => {
-                            return {'station': station, 'bus': this.state.buses[0]};
+                    for (let station of this.state.stations) {
+                        if (!data.has(station.id)) {
+                            data.set(station.id, [])
                         }
-                    );
-                }
-            } else {
-                let tData = [];
-                for (let bus of this.state.buses) {
-                    if (bus.stationId != null) {
-                        tData.push({'station': null, 'bus': bus});
+                        data.get(station.id).push({'station': station, 'bus': this.state.buses[0]})
                     }
                 }
-                if (tData.length > 0) {
-                    data = tData;
+            } else {
+                for (let bus of this.state.buses) {
+                    if (bus.stationId != null) {
+                        if (!data.has(bus.stationId)) {
+                            data.set(bus.stationId, [])
+                        }
+                        data.get(bus.stationId).push({'station': null, 'bus': bus});
+                    }
                 }
+            }
+            if (data.size === 0) {
+                return null;
             }
             return data;
         };
         const printBusesTimes = () => {
             let data = iterateData();
             if (data !== null) {
-                return data.map(value => <BusesTimes
-                    key={stationBusesHash(value.station === null ? value.bus.stationId : value.station.id, value.bus.id)}
-                    stationId={value.bus.stationId != null ? value.bus.stationId : value.station.id}
-                    busId={value.bus.id} busNumber={value.bus.label}/>)
+                return this.state.stations.map(station => (
+                    <div key={station.id}>
+                        <h2 className='Buses-times'>
+                            {station.name}</h2>
+                        {
+                            data.has(station.id) &&
+                            data.get(station.id).map(value =>
+                                <BusesTimes
+                                    key={stationBusesHash(value.station === null ? value.bus.stationId : value.station.id, value.bus.id)}
+                                    stationId={value.bus.stationId != null ? value.bus.stationId : value.station.id}
+                                    busId={value.bus.id} busNumber={value.bus.label}/>)
+                        }
+                    </div>)
+                )
             }
             return null;
         };
         const printCurBusesTimes = () => {
             let data = iterateData();
             if (data !== null) {
-                return data.map(value => <CurBusesTimes
-                    key={stationBusesHash(value.station === null ? value.bus.stationId : value.station.id, value.bus.id)}
-                    stationId={value.bus.stationId != null ? value.bus.stationId : value.station.id}
-                    busId={value.bus.id} busNumber={value.bus.label}
-                    stationName={value.station == null ? value.bus.station.name : value.station.name}/>)
+                return this.state.stations.map(station => data.has(station.id) && data.get(station.id).map(value =>
+                    <CurBusesTimes
+                        key={stationBusesHash(value.station === null ? value.bus.stationId : value.station.id, value.bus.id)}
+                        stationId={value.bus.stationId != null ? value.bus.stationId : value.station.id}
+                        busId={value.bus.id} busNumber={value.bus.label}
+                        stationName={value.station == null ? value.bus.station.name : value.station.name}/>))
+
             }
         };
         const headerClasses = classNames('App-header', {'App-header-shrink': this.state.hasKeyboard});
