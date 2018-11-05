@@ -14,6 +14,14 @@ class Select extends Component {
         }
     }
 
+    updateItemsCompareMethod() {
+        if (this.props.itemCompare !== undefined) {
+            this.itemCompare = this.props.itemCompare;
+        } else {
+            this.itemCompare = (a, b) => a.value === b.value;
+        }
+    }
+
     loadCookie(items) {
         let selectedItems = [];
         let selectedItemsC = Cookies.get(this.props.cookieName);
@@ -34,6 +42,7 @@ class Select extends Component {
     }
 
     updateComponent() {
+        this.updateItemsCompareMethod();
         if (this.props.values != null && this.props.values.length === 0) {
             this.setState({items: [], selectedItems: []});
             this.props.selectedChange([]);
@@ -82,7 +91,7 @@ class Select extends Component {
         const createItems = () => {
             let items = this.state.items;
             if (this.props.newOptionAvilible && this.state.newItem !== null) {
-                if (items.find(value => value.value === this.state.newItem.value) === undefined) {
+                if (items.find(value => this.itemCompare(value, this.state.newItem)) === undefined) {
                     items = items.concat(this.state.newItem)
                 }
             }
