@@ -7,7 +7,8 @@ class BusesTimes extends Component {
         super(props);
         this.state = {
             busesTimes: [],
-            fullData: false
+            fullData: false,
+            isShowBusesCount: false
         };
     }
 
@@ -43,12 +44,12 @@ class BusesTimes extends Component {
     static timeToString(time) {
         let d = new Date(0);
         d.setUTCSeconds(time);
-        return BusesTimes.pad(d.getUTCHours()) + ':' + BusesTimes.pad(d.getUTCMinutes()) + ':' + BusesTimes.pad(d.getUTCSeconds());
+        return BusesTimes.pad(d.getUTCHours()) + ':' + BusesTimes.pad(d.getUTCMinutes());
     }
 
-    static busTimeToString(busTime, busCount) {
-        let baseString = `האוטובוס אמור להגיע בשעה ${BusesTimes.timeToString(busTime)}`;
-        if (!isMobile()) {
+    static busTimeToString(busTime, busCount, isShowCount) {
+        let baseString = BusesTimes.timeToString(busTime);
+        if (!isMobile() && isShowCount) {
             baseString += ` והגיע בשעה הזו ${busCount} פעמים`;
         }
         return baseString;
@@ -74,11 +75,13 @@ class BusesTimes extends Component {
     render() {
         return (
             <div className='Buses-times'>
-                <h3>קו {this.props.busNumber}</h3>
+                <h4>קו {this.props.busNumber}</h4>
+                <label className='Buses-times-list'>האוטובוס אמור להגיע בשעות הבאות:</label>
+                <br/>
                 <ul className='Buses-times-list'>
-                    {BusesTimes.filterBuses(this.state.fullData, this.state.busesTimes).map(value =>
+                    {BusesTimes.filterBuses(this.state.fullData, this.state.busesTimes).filter(value => value.time >= this.props.filterTimeStart && value.time <= this.props.filterTimeEnd).map(value =>
                         <li className={!isMobile() ? 'Buses-times-list-desktop' : ''}
-                            key={value.id}>{BusesTimes.busTimeToString(value.time, value.count)}</li>)}
+                            key={value.id}>{BusesTimes.busTimeToString(value.time, value.count, this.state.isShowBusesCount)}</li>)}
                 </ul>
             </div>
         )

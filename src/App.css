@@ -45,6 +45,8 @@
 .Buses-times-list {
     list-style: none;
     padding-inline-start: 0px;
+    max-height: 100px;
+    overflow-y: auto;
 }
 
 .Ltr-align {

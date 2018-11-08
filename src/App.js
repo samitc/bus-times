@@ -8,6 +8,8 @@ import classNames from 'classnames';
 import {initializeGA} from "./utils/GA";
 import {stationBusesHash} from "./data/Buses";
 import Switch from 'react-switch'
+import TimePicker from 'rc-time-picker'
+import 'rc-time-picker/assets/index.css';
 import CurBusesTimes from "./ui/CurBusesTimes";
 
 class App extends Component {
@@ -15,7 +17,14 @@ class App extends Component {
         super();
         initializeGA();
         this.isMobile = isMobile();
-        this.state = {stations: [], buses: [], hasKeyboard: false, isBusesFilter: false};
+        this.state = {
+            stations: [],
+            buses: [],
+            hasKeyboard: false,
+            isBusesFilter: false,
+            startTime: 0,
+            endTime: 86400
+        };
     }
 
     render() {
@@ -70,15 +79,16 @@ class App extends Component {
             if (data !== null) {
                 return this.state.stations.map(station => (
                     <div key={station.id}>
-                        <h2 className='Buses-times'>
-                            {station.name}</h2>
+                        <h3 className='Buses-times'>
+                            {station.name}</h3>
                         {
                             data.has(station.id) &&
                             data.get(station.id).map(value =>
                                 <BusesTimes
                                     key={stationBusesHash(value.station === null ? value.bus.stationId : value.station.id, value.bus.id)}
                                     stationId={value.bus.stationId != null ? value.bus.stationId : value.station.id}
-                                    busId={value.bus.id} busNumber={value.bus.label}/>)
+                                    busId={value.bus.id} busNumber={value.bus.label}
+                                    filterTimeStart={this.state.startTime} filterTimeEnd={this.state.endTime}/>)
                         }
                     </div>)
                 )
@@ -96,6 +106,14 @@ class App extends Component {
                         stationName={value.station == null ? value.bus.station.name : value.station.name}/>))
 
             }
+        };
+        const getTimeFromPicker = (time, defaultValue) => {
+            if (time === null) {
+                return defaultValue
+            }
+            let strTime = time.format("HH:mm");
+            let strArr = strTime.split(":");
+            return (parseInt(strArr[0], 10) * 60 + parseInt(strArr[1], 10)) * 60
         };
         const headerClasses = classNames('App-header', {'App-header-shrink': this.state.hasKeyboard});
         const introClasses = classNames('App-intro', {'App-intro-shrink': this.state.hasKeyboard});
@@ -141,6 +159,16 @@ class App extends Component {
                         id="material-switch"
                     />
                 </div>
+                <label>סנן לפי זמן התחלה: </label>
+                <TimePicker
+                    showSecond={false}
+                    onChange={(time) => this.setState({startTime: getTimeFromPicker(time, 0)})}
+                />
+                <label> וזמן סיום: </label>
+                <TimePicker
+                    showSecond={false}
+                    onChange={(time) => this.setState({endTime: getTimeFromPicker(time, 86400)})}
+                />
                 {
                     printCurBusesTimes()
                 }
