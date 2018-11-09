@@ -33,14 +33,14 @@ function dataToString(data) {
 }
 
 function chooseStation(station) {
-    ReactGA.event({category: 'Data', action: 'choose station', label: 'stationId' + dataToString(station)})
+    ReactGA.event({category: 'Data', action: 'choose station', label: 'stationId:' + dataToString(station)})
 }
 
 function chooseBusStation(station, bus) {
     ReactGA.event({
         category: 'Data',
         action: 'choose station and bus',
-        label: 'stationId:' + station + ' busId:' + dataToString(bus)
+        label: 'stationId:' + dataToString(station) + ' busId:' + dataToString(bus)
     })
 }
 

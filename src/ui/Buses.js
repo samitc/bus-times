@@ -26,7 +26,9 @@ class Buses extends Component {
         let isFirstRead = true;
         const busHash = (stationId, busId) => stationBusesHash(stationId, busId);
         const busSelect = (bus) => {
-            chooseBusStation(this.props.stations, bus);
+            if (bus.length > 0) {
+                chooseBusStation(this.props.stations, bus);
+            }
             this.props.selectedChange(bus);
         };
         const readData = (callback) => {
