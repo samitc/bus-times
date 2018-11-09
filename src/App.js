@@ -8,19 +8,31 @@ import classNames from 'classnames';
 import {initializeGA} from "./utils/GA";
 import {stationBusesHash} from "./data/Buses";
 import Switch from 'react-switch'
+import TimePicker from 'rc-time-picker'
+import 'rc-time-picker/assets/index.css';
+import CurBusesTimes from "./ui/CurBusesTimes";
 
 class App extends Component {
     constructor() {
         super();
         initializeGA();
         this.isMobile = isMobile();
-        this.state = {stations: [], buses: [], hasKeyboard: false, isBusesFilter: false};
+        this.state = {
+            stations: [],
+            buses: [],
+            hasKeyboard: false,
+            isBusesFilter: false,
+            startTime: 0,
+            endTime: 86400
+        };
     }
 
-    static createBusesTimes(station, bus) {
-        return <BusesTimes key={stationBusesHash(station === null ? bus.stationId : station.id, bus.id)}
-                           stationId={bus.stationId != null ? bus.stationId : station.id}
-                           busId={bus.id} busNumber={bus.label}/>
+    static timeToHour(time) {
+        return Math.trunc(time / (60 * 60))
+    }
+
+    static timeToMinute(time, hour) {
+        return Math.trunc(time / 60 - hour * 60)
     }
 
     render() {
@@ -43,6 +55,73 @@ class App extends Component {
         };
         const handleBusesFilterChange = () => {
             this.setState({stations: [], buses: [], isBusesFilter: !this.state.isBusesFilter})
+        };
+        const iterateData = () => {
+            let data = new Map();
+            if (this.state.isBusesFilter) {
+                if (this.state.buses.length > 0) {
+                    for (let station of this.state.stations) {
+                        if (!data.has(station.id)) {
+                            data.set(station.id, [])
+                        }
+                        data.get(station.id).push({'station': station, 'bus': this.state.buses[0]})
+                    }
+                }
+            } else {
+                for (let bus of this.state.buses) {
+                    if (bus.stationId != null) {
+                        if (!data.has(bus.stationId)) {
+                            data.set(bus.stationId, [])
+                        }
+                        data.get(bus.stationId).push({'station': null, 'bus': bus});
+                    }
+                }
+            }
+            if (data.size === 0) {
+                return null;
+            }
+            return data;
+        };
+        const printBusesTimes = () => {
+            let data = iterateData();
+            if (data !== null) {
+                return this.state.stations.map(station => (
+                    <div key={station.id}>
+                        <h3 className='Buses-times'>
+                            {station.name}</h3>
+                        {
+                            data.has(station.id) &&
+                            data.get(station.id).map(value =>
+                                <BusesTimes
+                                    key={stationBusesHash(value.station === null ? value.bus.stationId : value.station.id, value.bus.id)}
+                                    stationId={value.bus.stationId != null ? value.bus.stationId : value.station.id}
+                                    busId={value.bus.id} busNumber={value.bus.label}
+                                    filterTimeStart={this.state.startTime} filterTimeEnd={this.state.endTime}/>)
+                        }
+                    </div>)
+                )
+            }
+            return null;
+        };
+        const printCurBusesTimes = () => {
+            let data = iterateData();
+            if (data !== null) {
+                return this.state.stations.map(station => data.has(station.id) && data.get(station.id).map(value =>
+                    <CurBusesTimes
+                        key={stationBusesHash(value.station === null ? value.bus.stationId : value.station.id, value.bus.id)}
+                        stationId={value.bus.stationId != null ? value.bus.stationId : value.station.id}
+                        busId={value.bus.id} busNumber={value.bus.label}
+                        stationName={value.station == null ? value.bus.station.name : value.station.name}/>))
+
+            }
+        };
+        const getTimeFromPicker = (time, defaultValue) => {
+            if (time === null) {
+                return defaultValue
+            }
+            let strTime = time.format("HH:mm");
+            let strArr = strTime.split(":");
+            return (parseInt(strArr[0], 10) * 60 + parseInt(strArr[1], 10)) * 60
         };
         const headerClasses = classNames('App-header', {'App-header-shrink': this.state.hasKeyboard});
         const introClasses = classNames('App-intro', {'App-intro-shrink': this.state.hasKeyboard});
@@ -88,20 +167,55 @@ class App extends Component {
                         id="material-switch"
                     />
                 </div>
-                {
-                    this.state.isBusesFilter ?
-                        this.state.buses.length > 0 ?
-                            this.state.stations.map(station => {
-                                return App.createBusesTimes(station, this.state.buses[0])
-                            }) : null
-                        :
-                        this.state.buses.map(bus => {
-                            if (bus.stationId != null) {
-                                return App.createBusesTimes(null, bus)
-                            } else {
-                                return null
+                <label>סנן לפי זמן התחלה: </label>
+                <TimePicker
+                    className='Time-picker-filter'
+                    showSecond={false}
+                    onChange={(time) => this.setState({startTime: getTimeFromPicker(time, 0)})}
+                    disabledHours={() => {
+                        const arr = [];
+                        for (let v = App.timeToHour(this.state.endTime) + 1; v < 24; v++) {
+                            arr.push(v)
+                        }
+                        return arr;
+                    }}
+                    disabledMinutes={(h) => {
+                        const arr = [];
+                        if (h === App.timeToHour(this.state.endTime)) {
+                            for (let v = App.timeToMinute(this.state.endTime, h) + 1; v < 60; v++) {
+                                arr.push(v)
                             }
-                        })
+                        }
+                        return arr;
+                    }}
+                />
+                <label> וזמן סיום: </label>
+                <TimePicker
+                    className='Time-picker-filter'
+                    showSecond={false}
+                    onChange={(time) => this.setState({endTime: getTimeFromPicker(time, 86400)})}
+                    disabledHours={() => {
+                        const arr = [];
+                        for (let v = 0; v < App.timeToHour(this.state.startTime); v++) {
+                            arr.push(v)
+                        }
+                        return arr;
+                    }}
+                    disabledMinutes={(h) => {
+                        const arr = [];
+                        if (h === App.timeToHour(this.state.startTime)) {
+                            for (let v = 0; v < App.timeToMinute(this.state.startTime, h); v++) {
+                                arr.push(v)
+                            }
+                        }
+                        return arr;
+                    }}
+                />
+                {
+                    printCurBusesTimes()
+                }
+                {
+                    printBusesTimes()
                 }
             </div>
         );

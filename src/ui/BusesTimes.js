@@ -4,42 +4,12 @@ import {isMobile} from "../utils/env";
 
 class BusesTimes extends Component {
     constructor(props) {
-        const REFRESH_TIMEOUT = 10000;
         super(props);
         this.state = {
             busesTimes: [],
-            curTime: null,
-            fullData: false
+            fullData: false,
+            isShowBusesCount: false
         };
-        if (this.props.autoRefresh == null || this.props.autoRefresh === true) {
-            this.refreshInterval = setInterval(() => {
-                this.updateBusData();
-            }, REFRESH_TIMEOUT);
-        }
-    }
-
-    updateBusData() {
-        if (this.props.stationId !== null && this.props.busId != null) {
-            Buses.getBusesTimes(this.props.stationId, this.props.busId).then(busesTimes => this.setState({busesTimes})).catch(reason => console.log(reason));
-            Buses.getBusesCurTimes(this.props.stationId, this.props.busId).then(curTime => this.setState({curTime})).catch(reason => console.log(reason));
-        }
-    }
-
-    componentDidMount() {
-        this.updateBusData();
-    }
-
-    componentDidUpdate(prevProps) {
-        if (this.props.stationId !== prevProps.stationId || this.props.busId !== prevProps.busId) {
-            this.setState({busesTimes: [], curTime: null});
-            this.updateBusData();
-        }
-    }
-
-    componentWillUnmount() {
-        if (this.refreshInterval != null) {
-            clearInterval(this.refreshInterval);
-        }
     }
 
     static filterBuses(fullData, buses) {
@@ -74,46 +44,47 @@ class BusesTimes extends Component {
     static timeToString(time) {
         let d = new Date(0);
         d.setUTCSeconds(time);
-        return BusesTimes.pad(d.getUTCHours()) + ':' + BusesTimes.pad(d.getUTCMinutes()) + ':' + BusesTimes.pad(d.getUTCSeconds());
+        return BusesTimes.pad(d.getUTCHours()) + ':' + BusesTimes.pad(d.getUTCMinutes());
     }
 
-    static busTimeToString(busTime, busCount) {
-        let baseString = `האוטובוס אמור להגיע בשעה ${BusesTimes.timeToString(busTime)}`;
-        if (!isMobile()) {
+    static busTimeToString(busTime, busCount, isShowCount) {
+        let baseString = BusesTimes.timeToString(busTime);
+        if (!isMobile() && isShowCount) {
             baseString += ` והגיע בשעה הזו ${busCount} פעמים`;
         }
         return baseString;
     }
 
-    static busCurTimeToString(busTime) {
-        if (busTime === "") {
-            return `האוטובוס לא אמור להגיע בשעה הקרובה`
+    updateBusData() {
+        if (this.props.stationId !== null && this.props.busId != null) {
+            Buses.getBusesTimes(this.props.stationId, this.props.busId).then(busesTimes => this.setState({busesTimes})).catch(reason => console.log(reason));
         }
-        else {
-            const baseString = `האוטובוס מגיע `;
-            const inString = `בעוד כ`;
-            if (busTime === 0) {
-                return baseString + `עכשיו`
-            }
-            else if (busTime === 1) {
-                return baseString + inString + `דקה`
-            }
-            else {
-                return baseString + inString + ` ${busTime} דקות`
-            }
+    }
+
+    componentDidMount() {
+        this.updateBusData();
+    }
+
+    componentDidUpdate(prevProps) {
+        if (this.props.stationId !== prevProps.stationId || this.props.busId !== prevProps.busId) {
+            this.setState({busesTimes: []});
+            this.updateBusData();
         }
     }
 
     render() {
         return (
             <div className='Buses-times'>
-                <h3>קו {this.props.busNumber}</h3>
-                {this.state.curTime != null && <h4>{BusesTimes.busCurTimeToString(this.state.curTime)}</h4>}
+                <h4>קו {this.props.busNumber}</h4>
+                <label className='Buses-times-list-desc'>האוטובוס אמור להגיע בשעות הבאות:</label>
+                <br/>
+                <div className='Arrow-up'>></div>
                 <ul className='Buses-times-list'>
-                    {BusesTimes.filterBuses(this.state.fullData, this.state.busesTimes).map(value =>
+                    {BusesTimes.filterBuses(this.state.fullData, this.state.busesTimes).filter(value => value.time >= this.props.filterTimeStart && value.time <= this.props.filterTimeEnd).map(value =>
                         <li className={!isMobile() ? 'Buses-times-list-desktop' : ''}
-                            key={value.id}>{BusesTimes.busTimeToString(value.time, value.count)}</li>)}
+                            key={value.id}>{BusesTimes.busTimeToString(value.time, value.count, this.state.isShowBusesCount)}</li>)}
                 </ul>
+                <div className='Arrow-down'>></div>
             </div>
         )
     }

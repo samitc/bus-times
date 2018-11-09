@@ -14,6 +14,14 @@ class Select extends Component {
         }
     }
 
+    updateItemsCompareMethod() {
+        if (this.props.itemCompare !== undefined) {
+            this.itemCompare = this.props.itemCompare;
+        } else {
+            this.itemCompare = (a, b) => a.value === b.value;
+        }
+    }
+
     loadCookie(items) {
         let selectedItems = [];
         let selectedItemsC = Cookies.get(this.props.cookieName);
@@ -34,6 +42,7 @@ class Select extends Component {
     }
 
     updateComponent() {
+        this.updateItemsCompareMethod();
         if (this.props.values != null && this.props.values.length === 0) {
             this.setState({items: [], selectedItems: []});
             this.props.selectedChange([]);
@@ -69,17 +78,28 @@ class Select extends Component {
                 Cookies.set(this.props.cookieName, itemsIds.join("|"));
             }
             let newItemIndex = items.indexOf(this.state.newItem);
-            let newItem = newItemIndex === -1 ? null : items[newItemIndex];
+            if (newItemIndex !== -1) {
+                items[newItemIndex].id = items[newItemIndex].value
+            }
             this.props.selectedChange(items);
-            this.setState({selectedItems: items, newItem});
+            this.setState({selectedItems: items, newItem: null});
         };
         const inputChange = (input) => {
-            this.setState({newItem: {label: input, value: input}});
+            if (input === "") {
+                this.setState({newItem: null})
+            } else {
+                let nInput = parseInt(input, 10);
+                if (!isNaN(nInput)) {
+                    this.setState({newItem: {label: input, value: nInput}});
+                }
+            }
         };
         const createItems = () => {
             let items = this.state.items;
             if (this.props.newOptionAvilible && this.state.newItem !== null) {
-                items = items.concat(this.state.newItem)
+                if (items.find(value => this.itemCompare(value, this.state.newItem)) === undefined) {
+                    items = items.concat(this.state.newItem)
+                }
             }
             return items;
         };

@@ -37,6 +37,7 @@ class Buses extends Component {
                         prom.push(DataBuses.getStationBuses(getObjectId(station)).then(buses => {
                             for (let bus of buses) {
                                 bus.stationId = getObjectId(station);
+                                bus.station = station;
                                 bus.value = busHash(bus.stationId, bus.id)
                             }
                             return buses
@@ -71,6 +72,7 @@ class Buses extends Component {
                 selectOpened={this.props.selectOpened}
                 selectClosed={this.props.selectClosed}
                 newOptionAvilible={this.props.stations.length !== 0}
+                itemCompare={(itemA, itemB) => itemA.label === itemB.label}
             />
         )
     }

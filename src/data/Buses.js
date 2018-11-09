@@ -31,7 +31,7 @@ function busesToValidJson(arr) {
 function stationsToValidJson(json) {
     return Object.keys(json).map(value => {
         const intVal = parseInt(value, 10);
-        return {id: intVal, value: intVal, label: json[value] + '(' + value + ')'}
+        return {id: intVal, value: intVal, name: json[value], label: json[value] + '(' + value + ')'}
     });
 }
 export function stationBusesHash(stationId, busId){
