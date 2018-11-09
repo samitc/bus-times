@@ -78,9 +78,11 @@ class Select extends Component {
                 Cookies.set(this.props.cookieName, itemsIds.join("|"));
             }
             let newItemIndex = items.indexOf(this.state.newItem);
-            let newItem = newItemIndex === -1 ? null : items[newItemIndex];
+            if (newItemIndex !== -1) {
+                items[newItemIndex].id = items[newItemIndex].value
+            }
             this.props.selectedChange(items);
-            this.setState({selectedItems: items, newItem});
+            this.setState({selectedItems: items, newItem: null});
         };
         const inputChange = (input) => {
             let nInput = parseInt(input, 10);
