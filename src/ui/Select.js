@@ -85,9 +85,13 @@ class Select extends Component {
             this.setState({selectedItems: items, newItem: null});
         };
         const inputChange = (input) => {
-            let nInput = parseInt(input, 10);
-            if (!isNaN(nInput)) {
-                this.setState({newItem: {label: input, value: nInput}});
+            if (input === "") {
+                this.setState({newItem: null})
+            } else {
+                let nInput = parseInt(input, 10);
+                if (!isNaN(nInput)) {
+                    this.setState({newItem: {label: input, value: nInput}});
+                }
             }
         };
         const createItems = () => {
