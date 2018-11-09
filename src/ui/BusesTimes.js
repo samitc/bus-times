@@ -76,13 +76,15 @@ class BusesTimes extends Component {
         return (
             <div className='Buses-times'>
                 <h4>קו {this.props.busNumber}</h4>
-                <label className='Buses-times-list'>האוטובוס אמור להגיע בשעות הבאות:</label>
+                <label className='Buses-times-list-desc'>האוטובוס אמור להגיע בשעות הבאות:</label>
                 <br/>
+                <div className='Arrow-up'>></div>
                 <ul className='Buses-times-list'>
                     {BusesTimes.filterBuses(this.state.fullData, this.state.busesTimes).filter(value => value.time >= this.props.filterTimeStart && value.time <= this.props.filterTimeEnd).map(value =>
                         <li className={!isMobile() ? 'Buses-times-list-desktop' : ''}
                             key={value.id}>{BusesTimes.busTimeToString(value.time, value.count, this.state.isShowBusesCount)}</li>)}
                 </ul>
+                <div className='Arrow-down'>></div>
             </div>
         )
     }

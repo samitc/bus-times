@@ -169,6 +169,7 @@ class App extends Component {
                 </div>
                 <label>סנן לפי זמן התחלה: </label>
                 <TimePicker
+                    className='Time-picker-filter'
                     showSecond={false}
                     onChange={(time) => this.setState({startTime: getTimeFromPicker(time, 0)})}
                     disabledHours={() => {
@@ -190,6 +191,7 @@ class App extends Component {
                 />
                 <label> וזמן סיום: </label>
                 <TimePicker
+                    className='Time-picker-filter'
                     showSecond={false}
                     onChange={(time) => this.setState({endTime: getTimeFromPicker(time, 86400)})}
                     disabledHours={() => {

@@ -42,11 +42,19 @@
     clear: both;
 }
 
+.Buses-times-list-desc {
+    list-style: none;
+    padding-inline-start: 0px;
+    max-height: 80px;
+    overflow-y: auto;
+}
+
 .Buses-times-list {
     list-style: none;
     padding-inline-start: 0px;
-    max-height: 100px;
+    max-height: 80px;
     overflow-y: auto;
+    margin: 0 0 0 0;
 }
 
 .Ltr-align {
@@ -60,6 +68,20 @@
 .Flex-display {
     display: flex;
     flex-direction: row;
+}
+
+.Time-picker-filter {
+    width: 50px;
+}
+
+.Arrow-up {
+    font-size: 12px;
+    transform: rotate(90deg);
+}
+
+.Arrow-down {
+    font-size: 12px;
+    transform: rotate(-90deg);
 }
 
 /* desktop css */
