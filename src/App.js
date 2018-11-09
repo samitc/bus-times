@@ -27,6 +27,14 @@ class App extends Component {
         };
     }
 
+    static timeToHour(time) {
+        return Math.trunc(time / (60 * 60))
+    }
+
+    static timeToMinute(time, hour) {
+        return Math.trunc(time / 60 - hour * 60)
+    }
+
     render() {
         const stationChange = (stations) => {
             this.setState({stations})
@@ -163,11 +171,43 @@ class App extends Component {
                 <TimePicker
                     showSecond={false}
                     onChange={(time) => this.setState({startTime: getTimeFromPicker(time, 0)})}
+                    disabledHours={() => {
+                        const arr = [];
+                        for (let v = App.timeToHour(this.state.endTime) + 1; v < 24; v++) {
+                            arr.push(v)
+                        }
+                        return arr;
+                    }}
+                    disabledMinutes={(h) => {
+                        const arr = [];
+                        if (h === App.timeToHour(this.state.endTime)) {
+                            for (let v = App.timeToMinute(this.state.endTime, h) + 1; v < 60; v++) {
+                                arr.push(v)
+                            }
+                        }
+                        return arr;
+                    }}
                 />
                 <label> וזמן סיום: </label>
                 <TimePicker
                     showSecond={false}
                     onChange={(time) => this.setState({endTime: getTimeFromPicker(time, 86400)})}
+                    disabledHours={() => {
+                        const arr = [];
+                        for (let v = 0; v < App.timeToHour(this.state.startTime); v++) {
+                            arr.push(v)
+                        }
+                        return arr;
+                    }}
+                    disabledMinutes={(h) => {
+                        const arr = [];
+                        if (h === App.timeToHour(this.state.startTime)) {
+                            for (let v = 0; v < App.timeToMinute(this.state.startTime, h); v++) {
+                                arr.push(v)
+                            }
+                        }
+                        return arr;
+                    }}
                 />
                 {
                     printCurBusesTimes()
