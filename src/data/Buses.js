@@ -21,20 +21,22 @@ function fetchFromServer(url) {
         }
     });
 }
-
+function createLabelForBus(bus) {
+    return `${bus.number} ל${bus.destination}`
+}
 function busesToValidJson(arr) {
     return arr.map(value => {
-        return {id: value.id, value: value.id, label: value.number}
+        return { id: value.id, value: value.id, label: createLabelForBus(value), destination: value.destination }
     });
 }
 
 function stationsToValidJson(json) {
     return Object.keys(json).map(value => {
         const intVal = parseInt(value, 10);
-        return {id: intVal, value: intVal, name: json[value], label: json[value] + '(' + value + ')'}
+        return { id: intVal, value: intVal, name: json[value], label: json[value] + '(' + value + ')' }
     });
 }
-export function stationBusesHash(stationId, busId){
+export function stationBusesHash(stationId, busId) {
     return (stationId << 16) | busId;
 }
 
@@ -62,7 +64,7 @@ class Buses {
         const fetchUrl = busesTimePrefixUrl + stationId + busesTimeSuffixUrl + busId;
         const busesTimeToValidJson = (json) => {
             return json.map(val => {
-                return {id: hash(val.time, val.count), time: val.time, count: val.count}
+                return { id: hash(val.time, val.count), time: val.time, count: val.count }
             })
         };
         return fetchFromServer(fetchUrl).then(result => result.json()).then(json => busesTimeToValidJson(json));
