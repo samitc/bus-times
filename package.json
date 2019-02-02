@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "classnames": "^2.2.6",
+    "geolib": "^2.0.24",
     "js-cookie": "^2.2.0",
     "mobile-detect": "^1.4.3",
     "rc-time-picker": "^3.6.2",

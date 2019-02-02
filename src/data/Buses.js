@@ -31,9 +31,8 @@ function busesToValidJson(arr) {
 }
 
 function stationsToValidJson(json) {
-    return Object.keys(json).map(value => {
-        const intVal = parseInt(value, 10);
-        return { id: intVal, value: intVal, name: json[value], label: json[value] + '(' + value + ')' }
+    return json.map(value => {
+        return { id: value.id, value: value.id, name: value.name, label: value.id + '(' + value.name + ')', lat: value.lat, lon: value.lon }
     });
 }
 export function stationBusesHash(stationId, busId) {
