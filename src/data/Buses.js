@@ -22,11 +22,11 @@ function fetchFromServer(url) {
     });
 }
 function createLabelForBus(bus) {
-    return `${bus.number} ל${bus.destination}`
+    return bus.destination != null ? `${bus.number} ל${bus.destination}` : bus.number
 }
 function busesToValidJson(arr) {
     return arr.map(value => {
-        return { id: value.id, value: value.id, label: createLabelForBus(value), destination: value.destination }
+        return { id: value.id, value: value.id, number: value.number, label: createLabelForBus(value), destination: value.destination }
     });
 }
 

@@ -1,13 +1,13 @@
-import React, {Component} from "react"
-import {default as DataBuses, stationBusesHash} from "../data/Buses"
-import {chooseBusStation, getObjectId} from "../utils/GA";
+import React, { Component } from "react"
+import { default as DataBuses, stationBusesHash } from "../data/Buses"
+import { chooseBusStation, getObjectId } from "../utils/GA";
 import Select from "./Select";
 
 class Buses extends Component {
     static sortBuses(buses) {
         buses.sort((a, b) => {
-            let aL = a.label;
-            let bL = b.label;
+            let aL = a.number;
+            let bL = b.number;
             if (aL.length !== bL.length) {
                 return aL.length - bL.length;
             }
