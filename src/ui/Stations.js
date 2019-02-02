@@ -36,8 +36,8 @@ class Stations extends Component {
                         callback(stations)
                     }, error => {
                         console.error(error)
-                        callback(stations)
                     })
+                    callback(stations)
                 }).catch(reason => console.log(reason))
             }
         };
