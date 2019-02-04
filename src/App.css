@@ -84,6 +84,12 @@
     transform: rotate(-90deg);
 }
 
+.Error {
+    color: #D8000C;
+    background-color: #FFD2D2;
+    padding:0 12px 0 12px;
+}
+
 /* desktop css */
 .Buses-times-list-desktop {
     float: right;

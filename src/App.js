@@ -11,6 +11,7 @@ import Switch from 'react-switch'
 import TimePicker from 'rc-time-picker'
 import 'rc-time-picker/assets/index.css';
 import CurBusesTimes from "./ui/CurBusesTimes";
+import { getLocation } from "./utils/Gps";
 
 class App extends Component {
     constructor() {
@@ -23,8 +24,13 @@ class App extends Component {
             hasKeyboard: false,
             isBusesFilter: false,
             startTime: 0,
-            endTime: 86400
+            endTime: 86400,
+            isLocationOk: true
         };
+        getLocation(() => {
+        }, () => {
+            this.setState({isLocationOk: false})
+        })
     }
 
     static timeToHour(time) {
@@ -133,9 +139,12 @@ class App extends Component {
                 <header className={headerClasses}>
                     <h1 className="App-title">זמני אוטובוס</h1>
                 </header>
-                <p className={introClasses}>
-                    בחרו תחנה ומספר קו והזמנים יופיעו למטה
-                </p>
+                <div>
+                    {!this.state.isLocationOk && <span className='Error'>מיקום אינו זמין</span>}
+                    <p className={introClasses}>
+                        בחרו תחנה ומספר קו והזמנים יופיעו למטה
+                    </p>
+                </div>
                 <Stations
                     buses={this.state.buses}
                     isBusesFilter={this.state.isBusesFilter}
