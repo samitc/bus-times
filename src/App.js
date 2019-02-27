@@ -10,6 +10,7 @@ import 'rc-time-picker/assets/index.css';
 import CurBusesTimes from "./ui/CurBusesTimes";
 import { getLocation } from "./utils/Gps";
 import SpecificPanel from "./ui/SpecificPanel"
+import Keyboard from './services/Keyboard';
 class App extends Component {
     constructor() {
         super();
@@ -18,7 +19,6 @@ class App extends Component {
         this.state = {
             stations: [],
             buses: [],
-            hasKeyboard: false,
             isBusesFilter: false,
             startTime: 0,
             endTime: 86400,
@@ -28,8 +28,15 @@ class App extends Component {
         }, () => {
             this.setState({ isLocationOk: false })
         })
+        this.keyboard = new Keyboard()
     }
-
+    componentDidMount() {
+        this.keyboardCallback = (hasKeyboard) => this.forceUpdate()
+        this.keyboard.addCallback(this.keyboardCallback)
+    }
+    componentWillUnmount() {
+        this.keyboard.removeCallback(this.keyboardCallback)
+    }
     static timeToHour(time) {
         return Math.trunc(time / (60 * 60))
     }
@@ -112,7 +119,7 @@ class App extends Component {
             let strArr = strTime.split(":");
             return (parseInt(strArr[0], 10) * 60 + parseInt(strArr[1], 10)) * 60
         };
-        const headerClasses = classNames('App-header', { 'App-header-shrink': this.state.hasKeyboard });
+        const headerClasses = classNames('App-header', { 'App-header-shrink': this.keyboard.hasKeyboard() });
         return (
             <div className="App">
                 <header className={headerClasses}>
@@ -122,7 +129,7 @@ class App extends Component {
                     {!this.state.isLocationOk && <span className='Error'>מיקום אינו זמין</span>}
                 </div>
                 <SpecificPanel
-                    hasKeyboard={(hasKeyboard) => this.setState({ hasKeyboard: hasKeyboard })}
+                    keyboard={this.keyboard}
                     reset={() => this.setState({ stations: [], buses: [] })}
                     buses={this.state.buses}
                     stations={this.state.stations}

@@ -3,13 +3,20 @@ import Stations from './Stations'
 import Buses from './Buses'
 import Switch from 'react-switch'
 import classNames from 'classnames';
+import { isMobile } from "../utils/env";
 export default class SpecificPanel extends Component {
     constructor() {
         super()
         this.state = {
             isBusesFilter: false,
-            hasKeyboard: false,
         }
+    }
+    componentDidMount() {
+        this.keyboardCallback = (hasKeyboard) => this.forceUpdate()
+        this.props.keyboard.addCallback(this.keyboardCallback)
+    }
+    componentWillUnmount() {
+        this.props.keyboard.removeCallback(this.keyboardCallback)
     }
     render() {
         const handleBusesFilterChange = () => {
@@ -17,12 +24,9 @@ export default class SpecificPanel extends Component {
             this.props.reset()
         };
         const setKeyboard = (hasKeyboard) => {
-            if (this.isMobile) {
-                this.setState({ hasKeyboard: true });
-            }
-            this.props.hasKeyboard(hasKeyboard)
+            this.props.keyboard.setHasKeyboard(hasKeyboard)
         }
-        const introClasses = classNames('App-intro', { 'App-intro-shrink': this.state.hasKeyboard });
+        const introClasses = classNames('App-intro', { 'App-intro-shrink': isMobile() && this.props.keyboard.hasKeyboard() });
         return (
             <div>
                 <p className={introClasses}>
