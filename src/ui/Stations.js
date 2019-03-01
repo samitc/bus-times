@@ -21,7 +21,7 @@ class Stations extends Component {
         };
         const readData = (callback) => {
             let fetch = null;
-            if (this.props.isBusesFilter) {
+            if (this.props.buses !== null) {
                 if (this.props.buses.length > 0) {
                     fetch = Buses.getBusesStations(this.props.buses.map((bus) => getObjectId(bus)))
                 }
@@ -48,7 +48,7 @@ class Stations extends Component {
             <Select
                 readData={readData}
                 selectedChange={selectedChange}
-                values={this.props.isBusesFilter === true ? this.props.buses : null}
+                values={this.props.buses}
                 cookieName='stations'
                 noValue='בחר תחנה'
                 emptyFilterValue='אין תחנות'

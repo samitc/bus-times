@@ -8,23 +8,61 @@ export default class SpecificPanel extends Component {
     constructor() {
         super()
         this.state = {
+            stations: [],
+            buses: [],
             isBusesFilter: false,
         }
     }
     componentDidMount() {
-        this.keyboardCallback = (hasKeyboard) => this.forceUpdate()
+        this.keyboardCallback = () => this.forceUpdate()
         this.props.keyboard.addCallback(this.keyboardCallback)
     }
     componentWillUnmount() {
         this.props.keyboard.removeCallback(this.keyboardCallback)
     }
+    recalcData() {
+        let data = new Map();
+        if (this.state.isBusesFilter) {
+            if (this.state.buses.length > 0) {
+                for (let station of this.state.stations) {
+                    if (!data.has(station.id)) {
+                        data.set(station, [])
+                    }
+                    data.get(station).push(this.state.buses[0])
+                }
+            }
+        } else {
+            for (let bus of this.state.buses) {
+                if (bus.stationId != null) {
+                    let station = this.state.stations.find(aStation => aStation.id === bus.stationId)
+                    if (!data.has(station)) {
+                        data.set(station, [])
+                    }
+                    data.get(station).push(bus);
+                }
+            }
+        }
+        if (data.size === 0) {
+            data = null
+        }
+        this.props.setData(data)
+    }
     render() {
         const handleBusesFilterChange = () => {
-            this.setState({ isBusesFilter: !this.state.isBusesFilter })
-            this.props.reset()
+            this.setState({ stations: [], buses: [], isBusesFilter: !this.state.isBusesFilter }, this.recalcData)
         };
         const setKeyboard = (hasKeyboard) => {
             this.props.keyboard.setHasKeyboard(hasKeyboard)
+        }
+        const busChange = (buses) => {
+            let stations
+            if (this.state.isBusesFilter) {
+                stations = []
+                buses = buses.length > 0 ? [buses[0]] : []
+            } else {
+                stations = this.state.stations
+            }
+            this.setState({ stations, buses }, this.recalcData);
         }
         const introClasses = classNames('App-intro', { 'App-intro-shrink': isMobile() && this.props.keyboard.hasKeyboard() });
         return (
@@ -34,18 +72,17 @@ export default class SpecificPanel extends Component {
                     </p>
                 <Stations
                     gps={this.props.gps}
-                    buses={this.props.buses}
-                    isBusesFilter={this.state.isBusesFilter}
-                    selectedChanged={(stations) => this.props.stationChange(stations)}
+                    buses={this.state.isBusesFilter ? this.state.buses : null}
+                    selectedChanged={(stations) => this.setState({ stations: stations }, this.recalcData)}
                     selectOpened={() => setKeyboard(true)}
                     selectClosed={() => setKeyboard(false)}
                 />
                 <div className='Flex-display'>
                     <div className='Full-width'>
                         <Buses
-                            stations={this.props.stations}
+                            stations={this.state.stations}
                             isBusesFilter={this.state.isBusesFilter}
-                            selectedChange={(buses) => this.props.busesChange(buses)}
+                            selectedChange={busChange}
                             selectOpened={() => setKeyboard(true)}
                             selectClosed={() => setKeyboard(false)}
                         />

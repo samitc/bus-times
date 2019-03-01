@@ -17,9 +17,7 @@ class App extends Component {
         initializeGA();
         this.isMobile = isMobile();
         this.state = {
-            stations: [],
-            buses: [],
-            isBusesFilter: false,
+            busesData: null,
             startTime: 0,
             endTime: 86400,
             appError: null
@@ -49,70 +47,39 @@ class App extends Component {
         return Math.trunc(time / 60 - hour * 60)
     }
     render() {
-        const busChange = (buses) => {
-            let stations = this.state.isBusesFilter ? [] : this.state.stations;
-            this.setState({ stations, buses });
-        };
-        const iterateData = () => {
-            let data = new Map();
-            if (this.state.isBusesFilter) {
-                if (this.state.buses.length > 0) {
-                    for (let station of this.state.stations) {
-                        if (!data.has(station.id)) {
-                            data.set(station.id, [])
-                        }
-                        data.get(station.id).push({ 'station': station, 'bus': this.state.buses[0] })
-                    }
-                }
-            } else {
-                for (let bus of this.state.buses) {
-                    if (bus.stationId != null) {
-                        if (!data.has(bus.stationId)) {
-                            data.set(bus.stationId, [])
-                        }
-                        data.get(bus.stationId).push({ 'station': null, 'bus': bus });
-                    }
-                }
-            }
-            if (data.size === 0) {
-                return null;
-            }
-            return data;
-        };
         const printBusesTimes = () => {
-            let data = iterateData();
+            let data = this.state.busesData
             if (data !== null) {
-                return this.state.stations.map(station => (
-                    data.has(station.id) &&
+                let numOfStations = data.size
+                return Array.from(data.keys()).map(station => (
                     <div key={station.id}>
+                        {numOfStations > 1 && <h3 className='Buses-times'>
+                            {station.name}
+                        </h3>}
                         {
-                            data.size > 1 && <h3 className='Buses-times'>
-                                {station.name}
-                            </h3>
-                        }
-                        {
-                            data.get(station.id).map(value =>
+                            data.get(station).map(bus =>
                                 <BusesTimes
-                                    key={stationBusesHash(value.station === null ? value.bus.stationId : value.station.id, value.bus.id)}
-                                    stationId={value.bus.stationId != null ? value.bus.stationId : value.station.id}
-                                    busId={value.bus.id} busNumber={value.bus.label}
+                                    key={stationBusesHash(station.id, bus.id)}
+                                    stationId={station.id}
+                                    busId={bus.id} busNumber={bus.label}
                                     filterTimeStart={this.state.startTime} filterTimeEnd={this.state.endTime} />)
                         }
-                    </div>)
-                )
+                    </div>
+                ))
             }
             return null;
         };
         const printCurBusesTimes = () => {
-            let data = iterateData();
+            let data = this.state.busesData
             if (data !== null) {
-                return this.state.stations.map(station => data.has(station.id) && data.get(station.id).map(value =>
-                    <CurBusesTimes
-                        key={stationBusesHash(value.station === null ? value.bus.stationId : value.station.id, value.bus.id)}
-                        stationId={value.bus.stationId != null ? value.bus.stationId : value.station.id}
-                        busId={value.bus.id} busNumber={value.bus.label}
-                        stationName={value.station == null ? value.bus.station.name : value.station.name} />))
-
+                return Array.from(data.keys()).map(station =>
+                    data.get(station).map(bus =>
+                        <CurBusesTimes
+                            key={stationBusesHash(station.id, bus.id)}
+                            stationId={station.id}
+                            busId={bus.id} busNumber={bus.label}
+                            stationName={station.name} />)
+                )
             }
         };
         const getTimeFromPicker = (time, defaultValue) => {
@@ -128,7 +95,7 @@ class App extends Component {
                 return <span className='Error'>{this.state.appError.message}</span>
             }
         }
-        const headerClasses = classNames('App-header', { 'App-header-shrink': this.keyboard.hasKeyboard() });
+        const headerClasses = classNames('App-header', { 'App-header-shrink': isMobile() && this.keyboard.hasKeyboard() });
         return (
             <div className="App">
                 <header className={headerClasses}>
@@ -138,11 +105,7 @@ class App extends Component {
                 <SpecificPanel
                     keyboard={this.keyboard}
                     gps={this.gps}
-                    reset={() => this.setState({ stations: [], buses: [] })}
-                    buses={this.state.buses}
-                    stations={this.state.stations}
-                    stationChange={(stations) => this.setState({ stations: stations })}
-                    busesChange={busChange}
+                    setData={(data) => this.setState({ busesData: data })}
                 />
                 <label>סנן לפי זמן התחלה: </label>
                 <TimePicker
