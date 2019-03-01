@@ -8,9 +8,9 @@ import { stationBusesHash } from "./data/Buses";
 import TimePicker from 'rc-time-picker'
 import 'rc-time-picker/assets/index.css';
 import CurBusesTimes from "./ui/CurBusesTimes";
-import { getLocation } from "./utils/Gps";
 import SpecificPanel from "./ui/SpecificPanel"
 import Keyboard from './services/Keyboard';
+import Gps from './services/Gps';
 class App extends Component {
     constructor() {
         super();
@@ -22,20 +22,24 @@ class App extends Component {
             isBusesFilter: false,
             startTime: 0,
             endTime: 86400,
-            isLocationOk: true
+            appError: null
         };
-        getLocation(() => {
-        }, () => {
-            this.setState({ isLocationOk: false })
-        })
         this.keyboard = new Keyboard()
+        this.gps = new Gps()
     }
     componentDidMount() {
-        this.keyboardCallback = (hasKeyboard) => this.forceUpdate()
+        this.keyboardCallback = () => this.forceUpdate()
+        this.gpsCallback = (location) => {
+            if (location === null) {
+                this.setState({ appError: this.gps.getErrorReason })
+            }
+        }
         this.keyboard.addCallback(this.keyboardCallback)
+        this.gps.addCallback(this.gpsCallback)
     }
     componentWillUnmount() {
         this.keyboard.removeCallback(this.keyboardCallback)
+        this.gps.removeCallback(this.gpsCallback)
     }
     static timeToHour(time) {
         return Math.trunc(time / (60 * 60))
@@ -119,17 +123,21 @@ class App extends Component {
             let strArr = strTime.split(":");
             return (parseInt(strArr[0], 10) * 60 + parseInt(strArr[1], 10)) * 60
         };
+        const createError = () => {
+            if (this.state.appError !== null) {
+                return <span className='Error'>{this.state.appError.message}</span>
+            }
+        }
         const headerClasses = classNames('App-header', { 'App-header-shrink': this.keyboard.hasKeyboard() });
         return (
             <div className="App">
                 <header className={headerClasses}>
                     <h1 className="App-title">זמני אוטובוס</h1>
                 </header>
-                <div>
-                    {!this.state.isLocationOk && <span className='Error'>מיקום אינו זמין</span>}
-                </div>
+                {createError()}
                 <SpecificPanel
                     keyboard={this.keyboard}
+                    gps={this.gps}
                     reset={() => this.setState({ stations: [], buses: [] })}
                     buses={this.state.buses}
                     stations={this.state.stations}

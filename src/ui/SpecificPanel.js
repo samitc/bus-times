@@ -33,6 +33,7 @@ export default class SpecificPanel extends Component {
                     בחרו תחנה ומספר קו והזמנים יופיעו למטה
                     </p>
                 <Stations
+                    gps={this.props.gps}
                     buses={this.props.buses}
                     isBusesFilter={this.state.isBusesFilter}
                     selectedChanged={(stations) => this.props.stationChange(stations)}

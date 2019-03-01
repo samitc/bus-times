@@ -2,11 +2,10 @@ import React, { Component } from "react";
 import Buses from "../data/Buses";
 import { chooseStation, getObjectId } from "../utils/GA";
 import Select from "./Select";
-import { getLocation } from "../utils/Gps";
 import geolib from 'geolib'
 class Stations extends Component {
     static createLocation(lat, lon) {
-        return { latitude: lat, longitude: lon }
+        return { lat: lat, lon: lon }
     }
     static sortStations(loc, stations) {
         stations.sort((a, b) => {
@@ -31,12 +30,16 @@ class Stations extends Component {
             }
             if (fetch !== null) {
                 fetch.then(stations => {
-                    getLocation((lat, lon) => {
-                        Stations.sortStations(Stations.createLocation(lat, lon), stations)
-                        callback(stations)
-                    }, error => {
-                        console.error(error)
-                    })
+                    let gpsCallback
+                    gpsCallback = (location) => {
+                        this.props.gps.removeCallback(gpsCallback)
+                        if (location !== null) {
+                            Stations.sortStations(location, stations)
+                            callback(stations)
+                        }
+                    }
+                    this.props.gps.addCallback(gpsCallback)
+                    this.props.gps.calcLocation()
                     callback(stations)
                 }).catch(reason => console.log(reason))
             }
