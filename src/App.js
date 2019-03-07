@@ -1,38 +1,44 @@
 import React, { Component } from 'react';
 import './App.css';
-import Stations from "./ui/Stations";
-import Buses from "./ui/Buses";
 import BusesTimes from "./ui/BusesTimes";
 import { isMobile } from './utils/env'
 import classNames from 'classnames';
 import { initializeGA } from "./utils/GA";
 import { stationBusesHash } from "./data/Buses";
-import Switch from 'react-switch'
 import TimePicker from 'rc-time-picker'
 import 'rc-time-picker/assets/index.css';
 import CurBusesTimes from "./ui/CurBusesTimes";
-import { getLocation } from "./utils/Gps";
-
+import SpecificPanel from "./ui/SpecificPanel"
+import Keyboard from './services/Keyboard';
+import Gps from './services/Gps';
 class App extends Component {
     constructor() {
         super();
         initializeGA();
         this.isMobile = isMobile();
         this.state = {
-            stations: [],
-            buses: [],
-            hasKeyboard: false,
-            isBusesFilter: false,
+            busesData: null,
             startTime: 0,
             endTime: 86400,
-            isLocationOk: true
+            appError: null
         };
-        getLocation(() => {
-        }, () => {
-            this.setState({isLocationOk: false})
-        })
+        this.keyboard = new Keyboard()
+        this.gps = new Gps()
     }
-
+    componentDidMount() {
+        this.keyboardCallback = () => this.forceUpdate()
+        this.gpsCallback = (location) => {
+            if (location === null) {
+                this.setState({ appError: this.gps.getErrorReason })
+            }
+        }
+        this.keyboard.addCallback(this.keyboardCallback)
+        this.gps.addCallback(this.gpsCallback)
+    }
+    componentWillUnmount() {
+        this.keyboard.removeCallback(this.keyboardCallback)
+        this.gps.removeCallback(this.gpsCallback)
+    }
     static timeToHour(time) {
         return Math.trunc(time / (60 * 60))
     }
@@ -40,88 +46,40 @@ class App extends Component {
     static timeToMinute(time, hour) {
         return Math.trunc(time / 60 - hour * 60)
     }
-
     render() {
-        const stationChange = (stations) => {
-            this.setState({ stations })
-        };
-        const busChange = (buses) => {
-            let stations = this.state.isBusesFilter ? [] : this.state.stations;
-            this.setState({ stations, buses });
-        };
-        const selectOpened = () => {
-            if (this.isMobile) {
-                this.setState({ hasKeyboard: true });
-            }
-        };
-        const selectClosed = () => {
-            if (this.isMobile) {
-                this.setState({ hasKeyboard: false });
-            }
-        };
-        const handleBusesFilterChange = () => {
-            this.setState({ stations: [], buses: [], isBusesFilter: !this.state.isBusesFilter })
-        };
-        const iterateData = () => {
-            let data = new Map();
-            if (this.state.isBusesFilter) {
-                if (this.state.buses.length > 0) {
-                    for (let station of this.state.stations) {
-                        if (!data.has(station.id)) {
-                            data.set(station.id, [])
-                        }
-                        data.get(station.id).push({ 'station': station, 'bus': this.state.buses[0] })
-                    }
-                }
-            } else {
-                for (let bus of this.state.buses) {
-                    if (bus.stationId != null) {
-                        if (!data.has(bus.stationId)) {
-                            data.set(bus.stationId, [])
-                        }
-                        data.get(bus.stationId).push({ 'station': null, 'bus': bus });
-                    }
-                }
-            }
-            if (data.size === 0) {
-                return null;
-            }
-            return data;
-        };
         const printBusesTimes = () => {
-            let data = iterateData();
+            let data = this.state.busesData
             if (data !== null) {
-                return this.state.stations.map(station => (
-                    data.has(station.id) &&
+                let numOfStations = data.size
+                return Array.from(data.keys()).map(station => (
                     <div key={station.id}>
+                        {numOfStations > 1 && <h3 className='Buses-times'>
+                            {station.name}
+                        </h3>}
                         {
-                            data.size > 1 && <h3 className='Buses-times'>
-                                {station.name}
-                            </h3>
-                        }
-                        {
-                            data.get(station.id).map(value =>
+                            data.get(station).map(bus =>
                                 <BusesTimes
-                                    key={stationBusesHash(value.station === null ? value.bus.stationId : value.station.id, value.bus.id)}
-                                    stationId={value.bus.stationId != null ? value.bus.stationId : value.station.id}
-                                    busId={value.bus.id} busNumber={value.bus.label}
+                                    key={stationBusesHash(station.id, bus.id)}
+                                    stationId={station.id}
+                                    busId={bus.id} busNumber={bus.label}
                                     filterTimeStart={this.state.startTime} filterTimeEnd={this.state.endTime} />)
                         }
-                    </div>)
-                )
+                    </div>
+                ))
             }
             return null;
         };
         const printCurBusesTimes = () => {
-            let data = iterateData();
+            let data = this.state.busesData
             if (data !== null) {
-                return this.state.stations.map(station => data.has(station.id) && data.get(station.id).map(value =>
-                    <CurBusesTimes
-                        key={stationBusesHash(value.station === null ? value.bus.stationId : value.station.id, value.bus.id)}
-                        stationId={value.bus.stationId != null ? value.bus.stationId : value.station.id}
-                        busId={value.bus.id} busNumber={value.bus.label}
-                        stationName={value.station == null ? value.bus.station.name : value.station.name} />))
-
+                return Array.from(data.keys()).map(station =>
+                    data.get(station).map(bus =>
+                        <CurBusesTimes
+                            key={stationBusesHash(station.id, bus.id)}
+                            stationId={station.id}
+                            busId={bus.id} busNumber={bus.label}
+                            stationName={station.name} />)
+                )
             }
         };
         const getTimeFromPicker = (time, defaultValue) => {
@@ -132,53 +90,23 @@ class App extends Component {
             let strArr = strTime.split(":");
             return (parseInt(strArr[0], 10) * 60 + parseInt(strArr[1], 10)) * 60
         };
-        const headerClasses = classNames('App-header', { 'App-header-shrink': this.state.hasKeyboard });
-        const introClasses = classNames('App-intro', { 'App-intro-shrink': this.state.hasKeyboard });
+        const createError = () => {
+            if (this.state.appError !== null) {
+                return <span className='Error'>{this.state.appError.message}</span>
+            }
+        }
+        const headerClasses = classNames('App-header', { 'App-header-shrink': isMobile() && this.keyboard.hasKeyboard() });
         return (
             <div className="App">
                 <header className={headerClasses}>
                     <h1 className="App-title">זמני אוטובוס</h1>
                 </header>
-                <div>
-                    {!this.state.isLocationOk && <span className='Error'>מיקום אינו זמין</span>}
-                    <p className={introClasses}>
-                        בחרו תחנה ומספר קו והזמנים יופיעו למטה
-                    </p>
-                </div>
-                <Stations
-                    buses={this.state.buses}
-                    isBusesFilter={this.state.isBusesFilter}
-                    selectedChanged={stationChange}
-                    selectOpened={selectOpened}
-                    selectClosed={selectClosed}
+                {createError()}
+                <SpecificPanel
+                    keyboard={this.keyboard}
+                    gps={this.gps}
+                    setData={(data) => this.setState({ busesData: data })}
                 />
-                <div className='Flex-display'>
-                    <div className='Full-width'>
-                        <Buses
-                            stations={this.state.stations}
-                            isBusesFilter={this.state.isBusesFilter}
-                            selectedChange={busChange}
-                            selectOpened={selectOpened}
-                            selectClosed={selectClosed}
-                        />
-                    </div>
-                    <label>סנן לפי אוטובוס</label>
-                    <Switch
-                        checked={this.state.isBusesFilter}
-                        onChange={handleBusesFilterChange}
-                        onColor="#86d3ff"
-                        onHandleColor="#2693e6"
-                        handleDiameter={30}
-                        uncheckedIcon={false}
-                        checkedIcon={false}
-                        boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
-                        activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
-                        height={20}
-                        width={48}
-                        className="Ltr-align"
-                        id="material-switch"
-                    />
-                </div>
                 <label>סנן לפי זמן התחלה: </label>
                 <TimePicker
                     className='Time-picker-filter'
