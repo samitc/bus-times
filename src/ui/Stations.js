@@ -56,7 +56,7 @@ class Stations extends Component {
                 selectClosed={this.props.selectClosed}
                 objectReplacement={[{ from: 'ת.', to: 'תחנה' }]}
                 searchReplacement={[{ from: 'ת ', to: 'ת. ' }]}
-                newOptionAvilible={true}
+                newOptionAvailable={true}
             />
         )
     }

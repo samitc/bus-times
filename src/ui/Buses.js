@@ -73,7 +73,7 @@ class Buses extends Component {
                 emptyFilterValue='אין קוים'
                 selectOpened={this.props.selectOpened}
                 selectClosed={this.props.selectClosed}
-                newOptionAvilible={this.props.stations.length !== 0}
+                newOptionAvailable={this.props.stations.length !== 0}
                 itemCompare={(itemA, itemB) => itemA.label === itemB.label}
             />
         )

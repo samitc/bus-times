@@ -11,6 +11,8 @@ import CurBusesTimes from "./ui/CurBusesTimes";
 import SpecificPanel from "./ui/SpecificPanel"
 import Keyboard from './services/Keyboard';
 import Gps from './services/Gps';
+import Switch from 'react-switch'
+import RoutePanel from './ui/RoutePanel';
 class App extends Component {
     constructor() {
         super();
@@ -18,6 +20,7 @@ class App extends Component {
         this.isMobile = isMobile();
         this.state = {
             busesData: null,
+            isRoute: true,
             startTime: 0,
             endTime: 86400,
             appError: null
@@ -102,11 +105,32 @@ class App extends Component {
                     <h1 className="App-title">זמני אוטובוס</h1>
                 </header>
                 {createError()}
-                <SpecificPanel
+                <div>
+                    <label className="Switch-button">חפש לפי מסלול</label>
+                    <Switch
+                        checked={this.state.isRoute}
+                        onChange={() => this.setState({ isRoute: !this.state.isRoute })}
+                        onColor="#86d3ff"
+                        onHandleColor="#2693e6"
+                        handleDiameter={30}
+                        uncheckedIcon={false}
+                        checkedIcon={false}
+                        boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+                        activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
+                        height={20}
+                        width={48}
+                        className="Ltr-align"
+                    />
+                </div>
+                {this.state.isRoute ? <RoutePanel
+                    setData={data => this.setState({ busesData: data })}
                     keyboard={this.keyboard}
-                    gps={this.gps}
-                    setData={(data) => this.setState({ busesData: data })}
                 />
+                    : <SpecificPanel
+                        keyboard={this.keyboard}
+                        gps={this.gps}
+                        setData={(data) => this.setState({ busesData: data })}
+                    />}
                 <label>סנן לפי זמן התחלה: </label>
                 <TimePicker
                     className='Time-picker-filter'

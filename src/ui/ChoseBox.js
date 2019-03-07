@@ -1,4 +1,4 @@
-import {Component} from "react"
+import { Component } from "react"
 import React from "react";
 import Select from "react-select";
 
@@ -42,7 +42,7 @@ class ChoseBox extends Component {
             numOfOptions = this.props.numOfOptions;
         }
         const inputChange = (inp, action) => {
-            if (action.action === "input-change") {
+            if (action.action === "input-change" && this.props.onInputChange !== undefined) {
                 this.props.onInputChange(inp)
             }
         };
