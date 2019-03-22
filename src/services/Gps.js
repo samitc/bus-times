@@ -13,13 +13,13 @@ export default class Gps extends Service {
                     this.location = { lat: position.coords.latitude, lon: position.coords.longitude }
                     this.onChanged(this.location)
                 },
-                error => {
-                    this.errorReason = new Error(error.message)
+                () => {
+                    this.errorReason = new Error("מיקום אינו זמין")
                     this.onChanged(null)
                 }
             )
         } else {
-            this.errorReason = new Error("location is not support")
+            this.errorReason = new Error("מיקום אינו זמין")
         }
     }
     isLocationOk() {

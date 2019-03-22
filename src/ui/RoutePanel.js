@@ -55,14 +55,16 @@ export default class RoutePanel extends Component {
                         placeSelected={place => this.setState({ originPlace: place.id })}
                     />
                 </div>
-                <span>
-                    נקודת סיום
-                </span>
-                <RouteLocation
-                    cities={this.state.cities}
-                    keyboard={this.props.keyboard}
-                    placeSelected={place => this.setState({ destinationPlace: place.id })}
-                />
+                <div>
+                    <span>
+                        נקודת סיום
+                    </span>
+                    <RouteLocation
+                        cities={this.state.cities}
+                        keyboard={this.props.keyboard}
+                        placeSelected={place => this.setState({ destinationPlace: place.id })}
+                    />
+                </div>
                 <div>
                     <span>
                         זמן יציאה

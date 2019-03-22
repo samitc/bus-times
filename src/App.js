@@ -32,7 +32,7 @@ class App extends Component {
         this.keyboardCallback = () => this.forceUpdate()
         this.gpsCallback = (location) => {
             if (location === null) {
-                this.setState({ appError: this.gps.getErrorReason })
+                this.setState({ appError: this.gps.getErrorReason() })
             }
         }
         this.keyboard.addCallback(this.keyboardCallback)
