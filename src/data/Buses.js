@@ -6,6 +6,9 @@ const busesStationUrl = allBusesUrl + '/';
 const busesTimePrefixUrl = stationUrl + '/';
 const busesTimeSuffixUrl = '/bus/';
 const busesCurTimeUrl = '/time';
+const citiesUrl = BASE_URL + "city"
+const citiesPlacesSuffixUrl = citiesUrl + "/"
+const placesUrl = "/places"
 let testIndex = 1;
 
 function hash() {
@@ -29,10 +32,14 @@ function busesToValidJson(arr) {
         return { id: value.id, value: value.id, number: value.number, label: createLabelForBus(value), destination: value.destination }
     });
 }
-
 function stationsToValidJson(json) {
     return json.map(value => {
         return { id: value.id, value: value.id, name: value.name, label: value.id + '(' + value.name + ')', lat: value.lat, lon: value.lon }
+    });
+}
+function nameIdToValidJson(json) {
+    return json.map(value => {
+        return { id: value.id, value: value.id, name: value.name, label: value.name }
     });
 }
 export function stationBusesHash(stationId, busId) {
@@ -77,6 +84,17 @@ class Buses {
             }
             return res
         });
+    }
+    static getCities() {
+        return fetchFromServer(citiesUrl).then(result => result.json()).then(json => nameIdToValidJson(json))
+    }
+    static getPlaces(cityId) {
+        const fetchUrl = citiesPlacesSuffixUrl + cityId + placesUrl
+        return fetchFromServer(fetchUrl).then(result => result.json()).then(json => nameIdToValidJson(json))
+    }
+    static getRoutes(originPlace, destinationPlace, time) {
+        const fetchUrl = `${BASE_URL}routes/${originPlace}/${destinationPlace}/${time}/route`
+        return fetchFromServer(fetchUrl).then(result => result.json())
     }
 }
 

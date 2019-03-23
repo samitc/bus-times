@@ -1,8 +1,8 @@
-import React, {Component} from "react"
+import React, { Component } from "react"
 import ChoseBox from "./ChoseBox";
 import Cookies from "js-cookie";
-import {readSelectFromString} from "../utils/SelectUtils";
-import {isMobile} from "../utils/env";
+import { readSelectFromString } from "../utils/SelectUtils";
+import { isMobile } from "../utils/env";
 
 class Select extends Component {
     constructor(props) {
@@ -24,27 +24,29 @@ class Select extends Component {
 
     loadCookie(items) {
         let selectedItems = [];
-        let selectedItemsC = Cookies.get(this.props.cookieName);
-        if (selectedItemsC != null) {
-            selectedItems = readSelectFromString(selectedItemsC, items);
-            if (selectedItems.length > 0) {
-                this.props.selectedChange(selectedItems)
+        if (this.props.cookieName !== undefined) {
+            let selectedItemsC = Cookies.get(this.props.cookieName);
+            if (selectedItemsC != null) {
+                selectedItems = readSelectFromString(selectedItemsC, items);
+                if (selectedItems.length > 0) {
+                    this.props.selectedChange(selectedItems)
+                }
             }
         }
-        this.setState({selectedItems})
+        this.setState({ selectedItems })
     }
 
     loadData(items) {
         if (this.props.setItems != null) {
             this.props.setItems(items)
         }
-        this.setState({items})
+        this.setState({ items })
     }
 
     updateComponent() {
         this.updateItemsCompareMethod();
         if (this.props.values != null && this.props.values.length === 0) {
-            this.setState({items: [], selectedItems: []});
+            this.setState({ items: [], selectedItems: [] });
             this.props.selectedChange([]);
         }
         const loadData = (items) => {
@@ -82,21 +84,21 @@ class Select extends Component {
                 items[newItemIndex].id = items[newItemIndex].value
             }
             this.props.selectedChange(items);
-            this.setState({selectedItems: items, newItem: null});
+            this.setState({ selectedItems: items, newItem: null });
         };
         const inputChange = (input) => {
             if (input === "") {
-                this.setState({newItem: null})
+                this.setState({ newItem: null })
             } else {
                 let nInput = parseInt(input, 10);
                 if (!isNaN(nInput)) {
-                    this.setState({newItem: {label: input, value: nInput}});
+                    this.setState({ newItem: { label: input, value: nInput } });
                 }
             }
         };
         const createItems = () => {
             let items = this.state.items;
-            if (this.props.newOptionAvilible && this.state.newItem !== null) {
+            if (this.props.newOptionAvailable && this.state.newItem !== null) {
                 if (items.find(value => this.itemCompare(value, this.state.newItem)) === undefined) {
                     items = items.concat(this.state.newItem)
                 }
