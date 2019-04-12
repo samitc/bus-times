@@ -35,10 +35,12 @@ export default class SpecificPanel extends Component {
             for (let bus of this.state.buses) {
                 if (bus.stationId != null) {
                     let station = this.state.stations.find(aStation => aStation.id === bus.stationId)
-                    if (!data.has(station)) {
-                        data.set(station, [])
+                    if (station !== undefined) {
+                        if (!data.has(station)) {
+                            data.set(station, [])
+                        }
+                        data.get(station).push(bus);
                     }
-                    data.get(station).push(bus);
                 }
             }
         }
