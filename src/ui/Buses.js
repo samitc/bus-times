@@ -74,7 +74,7 @@ class Buses extends Component {
                 selectOpened={this.props.selectOpened}
                 selectClosed={this.props.selectClosed}
                 newOptionAvailable={this.props.stations.length !== 0}
-                itemCompare={(itemA, itemB) => itemA.label === itemB.label}
+                itemCompare={(itemA, itemB) => itemA.number === itemB.label}
             />
         )
     }
