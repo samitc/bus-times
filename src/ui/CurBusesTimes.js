@@ -18,7 +18,10 @@ class CurBusesTimes extends Component {
 
     updateBusData() {
         if (this.props.stationId !== null && this.props.busId != null) {
-            Buses.getBusesCurTimes(this.props.stationId, this.props.busId).then(curTime => this.setState({curTime})).catch(reason => console.log(reason));
+            Buses.getBusesCurTimes(this.props.stationId, this.props.busId).then(curTime => this.setState({ curTime })).catch(reason => {
+                console.log(reason)
+                this.setState({ curTime: null })
+            });
         }
     }
 
