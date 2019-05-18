@@ -109,7 +109,7 @@ class App extends Component {
                     <label className="Switch-button">חפש לפי מסלול</label>
                     <Switch
                         checked={this.state.isRoute}
-                        onChange={() => this.setState({ isRoute: !this.state.isRoute })}
+                        onChange={() => this.setState({ isRoute: !this.state.isRoute, busesData: null })}
                         onColor="#86d3ff"
                         onHandleColor="#2693e6"
                         handleDiameter={30}
