@@ -9,12 +9,6 @@ const busesCurTimeUrl = '/time';
 const citiesUrl = BASE_URL + "city"
 const citiesPlacesSuffixUrl = citiesUrl + "/"
 const placesUrl = "/places"
-let testIndex = 1;
-
-function hash() {
-    return testIndex++
-}
-
 function fetchFromServer(url) {
     return fetch(url).then(result => {
         if (result.ok) {
@@ -45,6 +39,9 @@ function nameIdToValidJson(json) {
 export function stationBusesHash(stationId, busId) {
     return (stationId << 16) | busId;
 }
+function busesTimeHash(stationId, busId, time, count) {
+    return (stationId << 20) | (busId << 8) | (time << 4) | count
+}
 
 class Buses {
     static getStations() {
@@ -70,7 +67,7 @@ class Buses {
         const fetchUrl = busesTimePrefixUrl + stationId + busesTimeSuffixUrl + busId;
         const busesTimeToValidJson = (json) => {
             return json.map(val => {
-                return { id: hash(val.time, val.count), time: val.time, count: val.count }
+                return { id: busesTimeHash(stationId, busId, val.time, val.count), time: val.time, count: val.count }
             })
         };
         return fetchFromServer(fetchUrl).then(result => result.json()).then(json => busesTimeToValidJson(json));
