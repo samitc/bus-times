@@ -44,7 +44,7 @@ export default class InputChoseBox extends Component {
                         this.setState({ items: [] })
                     }
                 }}
-                noValue='בחר עיר'
+                noValue={this.props.noValue}
                 emptyFilterValue='הקלד כדי לחפש'
                 multi={false}
             />

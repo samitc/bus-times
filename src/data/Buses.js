@@ -1,14 +1,12 @@
 const BASE_URL = 'http://localhost:8088/';
 const stationUrl = BASE_URL + 'stations';
+const allStationUrl = BASE_URL + 'station';
 const allBusesUrl = BASE_URL + 'buses';
 const busesUrl = stationUrl + '/';
 const busesStationUrl = allBusesUrl + '/';
 const busesTimePrefixUrl = stationUrl + '/';
 const busesTimeSuffixUrl = '/bus/';
 const busesCurTimeUrl = '/time';
-const citiesUrl = BASE_URL + "city"
-const citiesPlacesSuffixUrl = citiesUrl + "/"
-const placesUrl = "/places"
 function fetchFromServer(url) {
     return fetch(url).then(result => {
         if (result.ok) {
@@ -31,11 +29,6 @@ function stationsToValidJson(json) {
         return { id: value.id, value: value.id, name: value.name, label: value.id + '(' + value.name + ')', lat: value.lat, lon: value.lon }
     });
 }
-function nameIdToValidJson(json) {
-    return json.map(value => {
-        return { id: value.id, value: value.id, name: value.name, label: value.name }
-    });
-}
 export function stationBusesHash(stationId, busId) {
     return (stationId << 16) | busId;
 }
@@ -44,6 +37,9 @@ function busesTimeHash(stationId, busId, time, count) {
 }
 
 class Buses {
+    static getAllStations() {
+        return fetchFromServer(allStationUrl).then(result => result.json()).then(json => stationsToValidJson(json))
+    }
     static getStations() {
         return fetchFromServer(stationUrl).then(result => result.json()).then(json => stationsToValidJson(json))
     }
@@ -81,13 +77,6 @@ class Buses {
             }
             return res
         });
-    }
-    static getCities() {
-        return fetchFromServer(citiesUrl).then(result => result.json()).then(json => nameIdToValidJson(json))
-    }
-    static getPlaces(cityId) {
-        const fetchUrl = citiesPlacesSuffixUrl + cityId + placesUrl
-        return fetchFromServer(fetchUrl).then(result => result.json()).then(json => nameIdToValidJson(json))
     }
     static getRoutes(originPlace, destinationPlace, time) {
         const fetchUrl = `${BASE_URL}routes/${originPlace}/${destinationPlace}/${time}/route`
