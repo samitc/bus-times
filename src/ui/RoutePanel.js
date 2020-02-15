@@ -1,44 +1,51 @@
 import React, { Component } from "react"
 import Buses from "../data/Buses";
-import RouteLocation from "./RouteLocation";
 import TimePicker from 'rc-time-picker'
 import moment from 'moment'
+import InputChoseBox from "./InputChoseBox";
 export default class RoutePanel extends Component {
     constructor() {
         super()
         this.state = {
-            cities: [],
-            originPlace: null,
-            destinationPlace: null,
+            stations: [],
+            originStationId: null,
+            destinationStationId: null,
             time: moment()
         }
     }
     componentDidMount() {
-        Buses.getCities().then(cities => this.setState({ cities: cities }))
+        Buses.getAllStations().then(stations => this.setState({ stations: stations }))
     }
     static checkEqualNotNull(preVal, val) {
         return val !== null && preVal !== val
     }
+    getStationData(stationId) {
+        return this.state.stations.find(station => stationId === station.id)
+    }
     getRoute() {
-        if (this.state.originPlace !== null && this.state.destinationPlace !== null && this.state.time !== null) {
-            Buses.getRoutes(this.state.originPlace, this.state.destinationPlace, RoutePanel.createTime(this.state.time)).then(jsonRoutesArray => {
-                let data = new Map()
-                for (let location of jsonRoutesArray) {
-                    let buses = [{ id: location.busId, label: location.busNumber }]
-                    data.set({ id: location.originStationId, name: location.name }, buses)
-                }
-                this.props.setData(data)
-            })
+        if (this.state.originStationId !== null && this.state.destinationStationId !== null && this.state.time !== null) {
+            Buses.getRoutes(this.state.originStationId, this.state.destinationStationId, RoutePanel.createTime(this.state.time))
+                .then(jsonRoutesArray => {
+                    let data = new Map()
+                    for (let stop of jsonRoutesArray) {
+                        let buses = [{ id: stop.busId, label: stop.busNumber }]
+                        let station = this.getStationData(stop.originStationId)
+                        data.set({ id: station.id, name: station.name }, buses)
+                    }
+                    this.props.setData(data)
+                })
         }
     }
     componentDidUpdate(_prevProps, prevState) {
-        if (prevState.originPlace !== this.state.originPlace || prevState.destinationPlace !== this.state.destinationPlace || prevState.time !== this.state.time) {
+        if (prevState.originStationId !== this.state.originStationId ||
+            prevState.destinationStationId !== this.state.destinationStationId ||
+            prevState.time !== this.state.time) {
             this.getRoute()
         }
     }
     static createTime(time) {
         if (time !== null) {
-            time = time.format("HH:mm")
+            time = time.diff(moment().startOf('day'), 'seconds')
         }
         return time
     }
@@ -49,20 +56,22 @@ export default class RoutePanel extends Component {
                     <span>
                         נקודת התחלה
                     </span>
-                    <RouteLocation
-                        cities={this.state.cities}
+                    <InputChoseBox
+                        items={this.state.stations}
                         keyboard={this.props.keyboard}
-                        placeSelected={place => this.setState({ originPlace: place.id })}
+                        onSelectedChanged={station => this.setState({ originStationId: station.id })}
+                        noValue='בחר תחנה'
                     />
                 </div>
                 <div>
                     <span>
                         נקודת סיום
                     </span>
-                    <RouteLocation
-                        cities={this.state.cities}
+                    <InputChoseBox
+                        items={this.state.stations}
                         keyboard={this.props.keyboard}
-                        placeSelected={place => this.setState({ destinationPlace: place.id })}
+                        onSelectedChanged={station => this.setState({ destinationStationId: station.id })}
+                        noValue='בחר תחנה'
                     />
                 </div>
                 <div>
