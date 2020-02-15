@@ -37,11 +37,19 @@ function busesTimeHash(stationId, busId, time, count) {
 }
 
 class Buses {
+    static allStationsPromise = null
+    static stationsPromise = null
     static getAllStations() {
-        return fetchFromServer(allStationUrl).then(result => result.json()).then(json => stationsToValidJson(json))
+        if (Buses.allStationsPromise === null) {
+            Buses.allStationsPromise = fetchFromServer(allStationUrl).then(result => result.json()).then(json => stationsToValidJson(json))
+        }
+        return Buses.allStationsPromise
     }
     static getStations() {
-        return fetchFromServer(stationUrl).then(result => result.json()).then(json => stationsToValidJson(json))
+        if (Buses.stationsPromise === null) {
+            Buses.stationsPromise = fetchFromServer(stationUrl).then(result => result.json()).then(json => stationsToValidJson(json))
+        }
+        return Buses.stationsPromise
     }
 
     static getBuses() {
