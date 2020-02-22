@@ -68,6 +68,9 @@ class Select extends Component {
 
     render() {
         const itemSelect = (items) => {
+            if (items === null) {
+                items = []
+            }
             if (!Array.isArray(items)) {
                 items = [items]
             }
@@ -111,7 +114,7 @@ class Select extends Component {
                 value={this.state.selectedItems}
                 onSelectedChanged={itemSelect}
                 numOfOptions={isMobile() ? 4 : 7}
-                onInputChange={inputChange}
+                onInputChange={this.props.allowAdding === true ? inputChange : undefined}
                 noValue={this.props.noValue}
                 emptyFilterValue={this.props.emptyFilterValue}
                 selectOpened={this.props.selectOpened}

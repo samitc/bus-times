@@ -57,6 +57,7 @@ class Stations extends Component {
                 objectReplacement={[{ from: 'ת.', to: 'תחנה' }]}
                 searchReplacement={[{ from: 'ת ', to: 'ת. ' }]}
                 newOptionAvailable={true}
+                allowAdding={true}
             />
         )
     }

@@ -33,7 +33,7 @@ export function stationBusesHash(stationId, busId) {
     return (stationId << 16) | busId;
 }
 function busesTimeHash(stationId, busId, time, count) {
-    return (stationId << 20) | (busId << 8) | (time << 4) | count
+    return ((time << 16) | count) ^ stationBusesHash(stationId, busId)
 }
 
 class Buses {
