@@ -4,16 +4,16 @@
   "private": true,
   "dependencies": {
     "classnames": "^2.2.6",
-    "geolib": "^2.0.24",
+    "geolib": "^3.3.1",
     "js-cookie": "^2.2.1",
     "mobile-detect": "^1.4.4",
-    "rc-time-picker": "^3.7.2",
-    "react": "^16.11.0",
-    "react-dom": "^16.11.0",
-    "react-ga": "^2.7.0",
-    "react-scripts": "^3.2.0",
-    "react-select": "latest",
-    "react-switch": "^3.0.4"
+    "rc-time-picker": "^3.7.3",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-ga": "^3.3.0",
+    "react-scripts": "^4.0.1",
+    "react-select": "^3.1.1",
+    "react-switch": "^5.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
