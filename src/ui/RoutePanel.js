@@ -8,8 +8,8 @@ export default class RoutePanel extends Component {
         super()
         this.state = {
             stations: [],
-            originStationId: null,
-            destinationStationId: null,
+            originStation: null,
+            destinationStation: null,
             time: moment()
         }
     }
@@ -23,13 +23,13 @@ export default class RoutePanel extends Component {
         return this.state.stations.find(station => stationId === station.id)
     }
     getRoute() {
-        if (this.state.originStationId !== null && this.state.destinationStationId !== null && this.state.time !== null) {
-            Buses.getRoutes(this.state.originStationId, this.state.destinationStationId, RoutePanel.createTime(this.state.time))
+        if (this.state.originStation && this.state.destinationStation && this.state.time) {
+            Buses.getRoutes(this.state.originStation.id, this.state.destinationStation.id, RoutePanel.createTime(this.state.time))
                 .then(jsonRoutesArray => {
                     let data = new Map()
                     for (let stop of jsonRoutesArray) {
                         let buses = [{ id: stop.busId, label: stop.busNumber }]
-                        let station = this.getStationData(stop.originStationId)
+                        let station = this.getStationData(stop.originStation.id)
                         data.set({ id: station.id, name: station.name }, buses)
                     }
                     this.props.setData(data)
@@ -37,8 +37,8 @@ export default class RoutePanel extends Component {
         }
     }
     componentDidUpdate(_prevProps, prevState) {
-        if (prevState.originStationId !== this.state.originStationId ||
-            prevState.destinationStationId !== this.state.destinationStationId ||
+        if (prevState?.originStation?.id !== this.state?.originStation?.id ||
+            prevState?.destinationStation?.id !== this.state?.destinationStation?.id ||
             prevState.time !== this.state.time) {
             this.getRoute()
         }
@@ -57,9 +57,9 @@ export default class RoutePanel extends Component {
                         נקודת התחלה
                     </span>
                     <InputChoseBox
-                        items={this.state.stations}
+                        items={this.state.destinationStation ? this.state.stations.filter(station => station.id !== this.state.destinationStation.id) : this.state.stations}
                         keyboard={this.props.keyboard}
-                        onSelectedChanged={station => this.setState({ originStationId: station.id })}
+                        onSelectedChanged={station => this.setState({ originStation: station })}
                         noValue='בחר תחנה'
                     />
                 </div>
@@ -68,9 +68,9 @@ export default class RoutePanel extends Component {
                         נקודת סיום
                     </span>
                     <InputChoseBox
-                        items={this.state.stations}
+                        items={this.state.originStation ? this.state.stations.filter(station => station.id !== this.state.originStation.id) : this.state.stations}
                         keyboard={this.props.keyboard}
-                        onSelectedChanged={station => this.setState({ destinationStationId: station.id })}
+                        onSelectedChanged={station => this.setState({ destinationStation: station })}
                         noValue='בחר תחנה'
                     />
                 </div>
