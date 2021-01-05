@@ -29,7 +29,7 @@ export default class RoutePanel extends Component {
                     let data = new Map()
                     for (let stop of jsonRoutesArray) {
                         let buses = [{ id: stop.busId, label: stop.busNumber }]
-                        let station = this.getStationData(stop.originStation.id)
+                        let station = this.getStationData(stop.originStationId)
                         data.set({ id: station.id, name: station.name }, buses)
                     }
                     this.props.setData(data)
