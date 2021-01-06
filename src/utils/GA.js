@@ -4,7 +4,7 @@ const GA_ID = 'UA-000000000-0';
 const TEST_MODE = true;
 
 function initializeGA() {
-    ReactGA.initialize(GA_ID, {testMode: TEST_MODE});
+    ReactGA.initialize(GA_ID, { testMode: TEST_MODE });
     ReactGA.pageview(window.location.pathname + window.location.search);
 }
 
@@ -33,7 +33,11 @@ function dataToString(data) {
 }
 
 function chooseStation(station) {
-    ReactGA.event({category: 'Data', action: 'choose station', label: 'stationId:' + dataToString(station)})
+    ReactGA.event({ category: 'Data', action: 'choose station', label: 'stationId:' + dataToString(station) })
+}
+
+function changeScreen(screen) {
+    ReactGA.event({ category: 'user', action: 'change screen', label: screen });
 }
 
 function chooseBusStation(station, bus) {
@@ -44,4 +48,4 @@ function chooseBusStation(station, bus) {
     })
 }
 
-export {initializeGA, chooseStation, chooseBusStation, getObjectId};
+export { initializeGA, chooseStation, chooseBusStation, getObjectId, changeScreen };

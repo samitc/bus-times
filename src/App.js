@@ -3,7 +3,7 @@ import './App.css';
 import BusesTimes from "./ui/BusesTimes";
 import { isMobile } from './utils/env'
 import classNames from 'classnames';
-import { initializeGA } from "./utils/GA";
+import { initializeGA, changeScreen } from "./utils/GA";
 import { stationBusesHash } from "./data/Buses";
 import TimePicker from 'rc-time-picker'
 import 'rc-time-picker/assets/index.css';
@@ -51,39 +51,51 @@ class App extends Component {
     }
     render() {
         const printBusesTimes = () => {
-            let data = this.state.busesData
-            if (data !== null) {
-                let numOfStations = data.size
-                return Array.from(data.keys()).map(station => (
-                    <div key={station.id}>
-                        {numOfStations > 1 && <h3 className='Buses-times'>
-                            {station.name}
+            const stationBuses = new Map();
+            this.state.busesData && this.state.busesData.forEach(data => {
+                const { destinationStation, bus } = data;
+                if (bus) {
+                    if (!stationBuses.get(destinationStation.id)) {
+                        stationBuses.set(destinationStation.id, []);
+                    }
+                    stationBuses.get(destinationStation.id).push({ destinationStation, bus });
+                }
+            });
+            const keys = Array.from(stationBuses.keys());
+            return keys.map(stationId => {
+                const data = stationBuses.get(stationId);
+                const stationName = data[0].destinationStation.name;
+                return (
+                    <div key={stationId}>
+                        {keys.length > 1 && <h3 className='Buses-times'>
+                            {stationName}
                         </h3>}
                         {
-                            data.get(station).map(bus =>
+                            data.map(({ bus }) =>
                                 <BusesTimes
-                                    key={stationBusesHash(station.id, bus.id)}
-                                    stationId={station.id}
+                                    key={stationBusesHash(stationId, bus.id)}
+                                    stationId={stationId}
                                     busId={bus.id} busNumber={bus.label}
                                     filterTimeStart={this.state.startTime} filterTimeEnd={this.state.endTime} />)
                         }
                     </div>
-                ))
-            }
-            return null;
+                )
+            });
         };
         const printCurBusesTimes = () => {
-            let data = this.state.busesData
-            if (data !== null) {
-                return Array.from(data.keys()).map(station =>
-                    data.get(station).map(bus =>
-                        <CurBusesTimes
-                            key={stationBusesHash(station.id, bus.id)}
-                            stationId={station.id}
-                            busId={bus.id} busNumber={bus.label}
-                            stationName={station.name} />)
-                )
-            }
+            return this.state.busesData && this.state.busesData.map(data => {
+                const { destinationStation, originStation, bus } = data;
+                return bus ? (
+                    <CurBusesTimes
+                        key={stationBusesHash(destinationStation.id, bus.id)}
+                        stationId={destinationStation.id}
+                        busId={bus.id} busNumber={bus.label}
+                        stationName={destinationStation.name} />
+                ) :
+                    <div key={stationBusesHash(destinationStation.id)}>
+                        לך מתחנת <b>{originStation.name}</b> לתחנת <b>{destinationStation.name}</b>
+                    </div>
+            });
         };
         const getTimeFromPicker = (time, defaultValue) => {
             if (time === null) {
@@ -109,7 +121,10 @@ class App extends Component {
                     <label className="Switch-button">חפש לפי מסלול</label>
                     <Switch
                         checked={this.state.isRoute}
-                        onChange={() => this.setState({ isRoute: !this.state.isRoute, busesData: null })}
+                        onChange={() => {
+                            changeScreen(this.state.isRoute ? 'real time by station' : 'route');
+                            this.setState({ isRoute: !this.state.isRoute, busesData: null });
+                        }}
                         onColor="#86d3ff"
                         onHandleColor="#2693e6"
                         handleDiameter={30}

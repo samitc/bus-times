@@ -26,11 +26,13 @@ export default class RoutePanel extends Component {
         if (this.state.originStation && this.state.destinationStation && this.state.time) {
             Buses.getRoutes(this.state.originStation.id, this.state.destinationStation.id, RoutePanel.createTime(this.state.time))
                 .then(jsonRoutesArray => {
-                    let data = new Map()
+                    const data = [];
                     for (let stop of jsonRoutesArray) {
-                        let buses = [{ id: stop.busId, label: stop.busNumber }]
-                        let station = this.getStationData(stop.originStationId)
-                        data.set({ id: station.id, name: station.name }, buses)
+                        const bus = stop.busId && { id: stop.busId, label: stop.busNumber };
+                        data.push({
+                            originStation: this.getStationData(stop.originStationId),
+                            destinationStation: this.getStationData(stop.destinationStationId), bus
+                        });
                     }
                     this.props.setData(data)
                 })

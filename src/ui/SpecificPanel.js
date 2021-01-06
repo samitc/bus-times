@@ -4,6 +4,7 @@ import Buses from './Buses'
 import Switch from 'react-switch'
 import classNames from 'classnames';
 import { isMobile } from "../utils/env";
+import { changeScreen } from '../utils/GA'
 export default class SpecificPanel extends Component {
     constructor() {
         super()
@@ -21,26 +22,12 @@ export default class SpecificPanel extends Component {
         this.props.keyboard.removeCallback(this.keyboardCallback)
     }
     recalcData() {
-        let data = new Map();
-        if (this.state.isBusesFilter) {
-            if (this.state.buses.length > 0) {
-                for (let station of this.state.stations) {
-                    if (!data.has(station.id)) {
-                        data.set(station, [])
-                    }
-                    data.get(station).push(this.state.buses[0])
-                }
-            }
-        } else {
-            for (let bus of this.state.buses) {
-                if (bus.stationId != null) {
-                    let station = this.state.stations.find(aStation => aStation.id === bus.stationId)
-                    if (station !== undefined) {
-                        if (!data.has(station)) {
-                            data.set(station, [])
-                        }
-                        data.get(station).push(bus);
-                    }
+        const data = [];
+        for (let bus of this.state.buses) {
+            if (bus.stationId != null) {
+                const station = this.state.stations.find(aStation => aStation.id === bus.stationId);
+                if (station) {
+                    data.push({ destinationStation: station, bus });
                 }
             }
         }
@@ -51,6 +38,7 @@ export default class SpecificPanel extends Component {
     }
     render() {
         const handleBusesFilterChange = () => {
+            changeScreen(this.state.isBusesFilter ? 'real time by station' : 'real time by bus');
             this.setState({ stations: [], buses: [], isBusesFilter: !this.state.isBusesFilter }, this.recalcData)
         };
         const setKeyboard = (hasKeyboard) => {
