@@ -53,18 +53,18 @@ class App extends Component {
         const printBusesTimes = () => {
             const stationBuses = new Map();
             this.state.busesData && this.state.busesData.forEach(data => {
-                const { destinationStation, bus } = data;
+                const { originStation, bus } = data;
                 if (bus) {
-                    if (!stationBuses.get(destinationStation.id)) {
-                        stationBuses.set(destinationStation.id, []);
+                    if (!stationBuses.get(originStation.id)) {
+                        stationBuses.set(originStation.id, []);
                     }
-                    stationBuses.get(destinationStation.id).push({ destinationStation, bus });
+                    stationBuses.get(originStation.id).push({ originStation, bus });
                 }
             });
             const keys = Array.from(stationBuses.keys());
             return keys.map(stationId => {
                 const data = stationBuses.get(stationId);
-                const stationName = data[0].destinationStation.name;
+                const stationName = data[0].originStation.name;
                 return (
                     <div key={stationId}>
                         {keys.length > 1 && <h3 className='Buses-times'>
@@ -82,19 +82,36 @@ class App extends Component {
                 )
             });
         };
+        const printRoute = () => {
+            return this.state.busesData && (
+                <>
+                    <div>
+                        <h2>תיאור המסלול:</h2>
+                        {this.state.busesData.map(data => {
+                            const { destinationStation, originStation, bus = {} } = data;
+                            const { name: oName } = originStation;
+                            const { name: dName } = destinationStation;
+                            const { label } = bus;
+                            return (
+                                <div key={stationBusesHash(destinationStation.id)}>
+                                    {label ? <>סע באוטובוס <b>{label}</b> מתחנת <b>{oName}</b>לתחנת <b>{dName}</b></> : <>לך מתחנת <b>{oName}</b> לתחנת <b>{dName}</b></>}
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <br />
+                </>);
+        };
         const printCurBusesTimes = () => {
             return this.state.busesData && this.state.busesData.map(data => {
-                const { destinationStation, originStation, bus } = data;
-                return bus ? (
+                const { originStation, bus } = data;
+                return bus && (
                     <CurBusesTimes
-                        key={stationBusesHash(destinationStation.id, bus.id)}
-                        stationId={destinationStation.id}
+                        key={stationBusesHash(originStation.id, bus.id)}
+                        stationId={originStation.id}
                         busId={bus.id} busNumber={bus.label}
-                        stationName={destinationStation.name} />
-                ) :
-                    <div key={stationBusesHash(destinationStation.id)}>
-                        לך מתחנת <b>{originStation.name}</b> לתחנת <b>{destinationStation.name}</b>
-                    </div>
+                        stationName={originStation.name} />
+                );
             });
         };
         const getTimeFromPicker = (time, defaultValue) => {
@@ -190,6 +207,7 @@ class App extends Component {
                         return arr;
                     }}
                 />
+                {this.state.isRoute && printRoute()}
                 {
                     printCurBusesTimes()
                 }

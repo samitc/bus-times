@@ -27,7 +27,7 @@ export default class SpecificPanel extends Component {
             if (bus.stationId != null) {
                 const station = this.state.stations.find(aStation => aStation.id === bus.stationId);
                 if (station) {
-                    data.push({ destinationStation: station, bus });
+                    data.push({ originStation: station, bus });
                 }
             }
         }
