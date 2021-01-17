@@ -1,7 +1,7 @@
-import React, {Component} from "react"
+import React, { Component } from "react"
 import Buses from "../data/Buses";
-import {isMobile} from "../utils/env";
-
+import { isMobile } from "../utils/env";
+import { timeToString } from "../utils/time";
 class BusesTimes extends Component {
     constructor(props) {
         super(props);
@@ -32,23 +32,8 @@ class BusesTimes extends Component {
         return newBuses;
     }
 
-    static pad(d) {
-        if (d < 10) {
-            return '0' + d;
-        }
-        else {
-            return d;
-        }
-    }
-
-    static timeToString(time) {
-        let d = new Date(0);
-        d.setUTCSeconds(time);
-        return BusesTimes.pad(d.getUTCHours()) + ':' + BusesTimes.pad(d.getUTCMinutes());
-    }
-
     static busTimeToString(busTime, busCount, isShowCount) {
-        let baseString = BusesTimes.timeToString(busTime);
+        let baseString = timeToString(busTime);
         if (!isMobile() && isShowCount) {
             baseString += ` והגיע בשעה הזו ${busCount} פעמים`;
         }
@@ -57,7 +42,7 @@ class BusesTimes extends Component {
 
     updateBusData() {
         if (this.props.stationId !== null && this.props.busId != null) {
-            Buses.getBusesTimes(this.props.stationId, this.props.busId).then(busesTimes => this.setState({busesTimes})).catch(reason => console.log(reason));
+            Buses.getBusesTimes(this.props.stationId, this.props.busId).then(busesTimes => this.setState({ busesTimes })).catch(reason => console.log(reason));
         }
     }
 
@@ -67,7 +52,7 @@ class BusesTimes extends Component {
 
     componentDidUpdate(prevProps) {
         if (this.props.stationId !== prevProps.stationId || this.props.busId !== prevProps.busId) {
-            this.setState({busesTimes: []});
+            this.setState({ busesTimes: [] });
             this.updateBusData();
         }
     }
@@ -77,7 +62,7 @@ class BusesTimes extends Component {
             <div className='Buses-times'>
                 <h4>קו {this.props.busNumber}</h4>
                 <label className='Buses-times-list-desc'>האוטובוס אמור להגיע בשעות הבאות:</label>
-                <br/>
+                <br />
                 <div className='Arrow-up'>></div>
                 <ul className='Buses-times-list'>
                     {BusesTimes.filterBuses(this.state.fullData, this.state.busesTimes).filter(value => value.time >= this.props.filterTimeStart && value.time <= this.props.filterTimeEnd).map(value =>

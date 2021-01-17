@@ -13,6 +13,7 @@ import Keyboard from './services/Keyboard';
 import Gps from './services/Gps';
 import Switch from 'react-switch'
 import RoutePanel from './ui/RoutePanel';
+import { timeToString } from "./utils/time";
 class App extends Component {
     constructor() {
         super();
@@ -88,13 +89,13 @@ class App extends Component {
                     <div>
                         <h2>תיאור המסלול:</h2>
                         {this.state.busesData.map(data => {
-                            const { destinationStation, originStation, bus = {} } = data;
+                            const { destinationStation, originStation, bus = {}, originTime } = data;
                             const { name: oName } = originStation;
                             const { name: dName } = destinationStation;
                             const { label } = bus;
                             return (
                                 <div key={stationBusesHash(destinationStation.id)}>
-                                    {label ? <>סע באוטובוס <b>{label}</b> מתחנת <b>{oName}</b>לתחנת <b>{dName}</b></> : <>לך מתחנת <b>{oName}</b> לתחנת <b>{dName}</b></>}
+                                    {label ? <>סע באוטובוס <b>{label}</b> מתחנת <b>{oName}</b> לתחנת <b>{dName}</b> ויוצא בשעה {timeToString(originTime)}</> : <>לך מתחנת <b>{oName}</b> לתחנת <b>{dName}</b></>}
                                 </div>
                             );
                         })}

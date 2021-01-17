@@ -31,7 +31,7 @@ export default class RoutePanel extends Component {
                         const bus = stop.busId && { id: stop.busId, label: stop.busNumber };
                         data.push({
                             originStation: this.getStationData(stop.originStationId),
-                            destinationStation: this.getStationData(stop.destinationStationId), bus
+                            destinationStation: this.getStationData(stop.destinationStationId), bus, destinationTime: stop.destinationTime, originTime: stop.originTime
                         });
                     }
                     this.props.setData(data)
