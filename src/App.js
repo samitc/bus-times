@@ -8,9 +8,10 @@ import { stationBusesHash } from "./data/Buses";
 import TimePicker from 'rc-time-picker'
 import 'rc-time-picker/assets/index.css';
 import CurBusesTimes from "./ui/CurBusesTimes";
-import SpecificPanel from "./ui/SpecificPanel"
+import SpecificPanelComponent from './ui/SpecificPanel/SpecificPanelComponent';
+import { getAllStations, sortByDistanceInPlace } from "./utils/Stations";
 import Keyboard from './services/Keyboard';
-import Gps from './services/Gps';
+import Gps, { getLocation } from './services/Gps';
 import Switch from 'react-switch'
 import RoutePanel from './ui/RoutePanel';
 import { timeToString } from "./utils/time";
@@ -24,12 +25,22 @@ class App extends Component {
             isRoute: true,
             startTime: 0,
             endTime: 86400,
-            appError: null
+            appError: null,
+
+            stations: null,
         };
         this.keyboard = new Keyboard()
         this.gps = new Gps()
     }
     componentDidMount() {
+        getAllStations().then(stations => {
+            this.setState({ stations });
+            getLocation().then(location => {
+                const stationsByDistance = stations.slice();
+                sortByDistanceInPlace(stationsByDistance, location);
+                this.setState({ stations: stationsByDistance });
+            }).catch(err => this.setState({ appError: err }));
+        });
         this.keyboardCallback = () => this.forceUpdate()
         this.gpsCallback = (location) => {
             if (location === null) {
@@ -159,10 +170,9 @@ class App extends Component {
                     setData={data => this.setState({ busesData: data })}
                     keyboard={this.keyboard}
                 />
-                    : <SpecificPanel
-                        keyboard={this.keyboard}
-                        gps={this.gps}
-                        setData={(data) => this.setState({ busesData: data })}
+                    : <SpecificPanelComponent
+                        stations={this.state.stations}
+                        onDataChanged={(data) => this.setState({ busesData: data })}
                     />}
                 <label>סנן לפי זמן התחלה: </label>
                 <TimePicker
