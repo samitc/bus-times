@@ -3,6 +3,7 @@ import Buses from "../data/Buses";
 import TimePicker from 'rc-time-picker'
 import moment from 'moment'
 import InputChoseBox from "./InputChoseBox";
+import LoaderComponent from "./Loader/Loader";
 export default class RoutePanel extends Component {
     constructor() {
         super()
@@ -10,7 +11,9 @@ export default class RoutePanel extends Component {
             stations: [],
             originStation: null,
             destinationStation: null,
-            time: moment()
+            time: moment(),
+            routeCalculationId: 0,
+            isLoading: false
         }
     }
     componentDidMount() {
@@ -22,20 +25,28 @@ export default class RoutePanel extends Component {
     getStationData(stationId) {
         return this.state.stations.find(station => stationId === station.id)
     }
+    async calcRoute(routeCalculationId) {
+        this.setState({ isLoading: true });
+        const jsonRoutesArray = await Buses.getRoutes(this.state.originStation.id, this.state.destinationStation.id, RoutePanel.createTime(this.state.time));
+        const data = [];
+        for (let stop of jsonRoutesArray) {
+            const bus = stop.busId && { id: stop.busId, label: stop.busNumber };
+            data.push({
+                originStation: this.getStationData(stop.originStationId),
+                destinationStation: this.getStationData(stop.destinationStationId), bus, destinationTime: stop.destinationTime, originTime: stop.originTime
+            });
+        }
+        if (this.state.routeCalculationId === routeCalculationId) {
+            this.setState({ isLoading: false });
+        }
+        return data;
+    }
     getRoute() {
         if (this.state.originStation && this.state.destinationStation && this.state.time) {
-            Buses.getRoutes(this.state.originStation.id, this.state.destinationStation.id, RoutePanel.createTime(this.state.time))
-                .then(jsonRoutesArray => {
-                    const data = [];
-                    for (let stop of jsonRoutesArray) {
-                        const bus = stop.busId && { id: stop.busId, label: stop.busNumber };
-                        data.push({
-                            originStation: this.getStationData(stop.originStationId),
-                            destinationStation: this.getStationData(stop.destinationStationId), bus, destinationTime: stop.destinationTime, originTime: stop.originTime
-                        });
-                    }
-                    this.props.setData(data)
-                })
+            const routeCalculationId = this.state.routeCalculationId + 1;
+            this.setState({ routeCalculationId }, () => {
+                this.calcRoute(routeCalculationId).then(data => { this.props.setData(data); });
+            });
         }
     }
     componentDidUpdate(_prevProps, prevState) {
@@ -87,6 +98,7 @@ export default class RoutePanel extends Component {
                         value={this.state.time}
                     />
                 </div>
+                <LoaderComponent isLoading={this.state.isLoading} />
             </div>
         )
     }
