@@ -50,9 +50,9 @@ export default class RoutePanel extends Component {
         }
     }
     componentDidUpdate(_prevProps, prevState) {
-        if (prevState?.originStation?.id !== this.state?.originStation?.id ||
-            prevState?.destinationStation?.id !== this.state?.destinationStation?.id ||
-            prevState.time !== this.state.time) {
+        if ((prevState?.originStation?.id !== this.state?.originStation?.id ||
+            prevState?.destinationStation?.id !== this.state?.destinationStation?.id) || 
+            (prevState.time !== null && prevState.time.diff(this.state.time) !== 0)) {
             this.getRoute()
         }
     }
@@ -96,6 +96,7 @@ export default class RoutePanel extends Component {
                         onChange={time => this.setState({ time: time })}
                         use12Hours={false}
                         value={this.state.time}
+                        allowEmpty={false}
                     />
                 </div>
                 <LoaderComponent isLoading={this.state.isLoading} />
