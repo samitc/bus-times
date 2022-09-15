@@ -1,4 +1,4 @@
-import ReactGA from 'react-ga'
+import ReactGA from "react-ga4";
 
 const GA_ID = 'UA-000000000-0';
 const TEST_MODE = true;
