@@ -30,13 +30,13 @@ export default class RoutePanel extends Component {
   async calcRoute(routeCalculationId) {
     this.setState({ isLoading: true });
     this.props.onError();
+    const data = [];
     try {
       const jsonRoutesArray = await Buses.getRoutes(
         this.state.originStation.id,
         this.state.destinationStation.id,
         RoutePanel.createTime(this.state.time)
       );
-      const data = [];
       for (let stop of jsonRoutesArray) {
         const bus = stop.busId && { id: stop.busId, label: stop.busNumber };
         data.push({
