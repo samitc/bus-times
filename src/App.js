@@ -21,9 +21,11 @@ class App extends Component {
   constructor() {
     super();
     initializeGA();
-    posthog.init("phc_nIxEAypzDBOtmPJaFv1VGnyscRtHnBBPsaRcKz2Gf9k", {
-      api_host: "https://app.posthog.com",
-    });
+    if (process.env.NODE_ENV !== "test") {
+      posthog.init("phc_nIxEAypzDBOtmPJaFv1VGnyscRtHnBBPsaRcKz2Gf9k", {
+        api_host: "https://app.posthog.com",
+      });
+    }
     this.isMobile = isMobile();
     this.state = {
       busesData: null,
