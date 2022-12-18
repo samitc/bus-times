@@ -4,6 +4,7 @@ import BusesTimes from "./ui/BusesTimes";
 import { isMobile } from "./utils/env";
 import classNames from "classnames";
 import { initializeGA, changeScreen } from "./utils/GA";
+import posthog from "posthog-js";
 import { stationBusesHash } from "./data/Buses";
 import TimePicker from "rc-time-picker";
 import "rc-time-picker/assets/index.css";
@@ -15,10 +16,14 @@ import Gps, { getLocation } from "./services/Gps";
 import Switch from "react-switch";
 import RoutePanel from "./ui/RoutePanel";
 import { timeToString } from "./utils/time";
+import { event } from "./services/events";
 class App extends Component {
   constructor() {
     super();
     initializeGA();
+    posthog.init("phc_nIxEAypzDBOtmPJaFv1VGnyscRtHnBBPsaRcKz2Gf9k", {
+      api_host: "https://app.posthog.com",
+    });
     this.isMobile = isMobile();
     this.state = {
       busesData: null,
@@ -180,10 +185,10 @@ class App extends Component {
           <Switch
             checked={this.state.isRoute}
             onChange={() => {
-              changeScreen(
-                this.state.isRoute ? "real time by station" : "route"
-              );
-              this.setState({ isRoute: !this.state.isRoute, busesData: null });
+              const isRoute = !this.state.isRoute;
+              event("screenPage", { isRoute });
+              changeScreen(isRoute ? "real time by station" : "route");
+              this.setState({ isRoute, busesData: null });
             }}
             onColor="#86d3ff"
             onHandleColor="#2693e6"
@@ -213,9 +218,13 @@ class App extends Component {
         <TimePicker
           className="Time-picker-filter"
           showSecond={false}
-          onChange={(time) =>
-            this.setState({ startTime: getTimeFromPicker(time, 0) })
-          }
+          onChange={(time) => {
+            event("time filter", {
+              type: "start time",
+              time: getTimeFromPicker(time, 86400),
+            });
+            this.setState({ startTime: getTimeFromPicker(time, 0) });
+          }}
           disabledHours={() => {
             const arr = [];
             for (let v = App.timeToHour(this.state.endTime) + 1; v < 24; v++) {
@@ -241,9 +250,13 @@ class App extends Component {
         <TimePicker
           className="Time-picker-filter"
           showSecond={false}
-          onChange={(time) =>
-            this.setState({ endTime: getTimeFromPicker(time, 86400) })
-          }
+          onChange={(time) => {
+            event("time filter", {
+              type: "end time",
+              time: getTimeFromPicker(time, 86400),
+            });
+            this.setState({ endTime: getTimeFromPicker(time, 86400) });
+          }}
           disabledHours={() => {
             const arr = [];
             for (let v = 0; v < App.timeToHour(this.state.startTime); v++) {

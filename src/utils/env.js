@@ -1,11 +1,10 @@
-import MobileDetect from 'mobile-detect';
+import MobileDetect from "mobile-detect";
+import { event } from "../services/events";
 
 const md = new MobileDetect(window.navigator.userAgent);
 
 export function isMobile() {
-    return md.mobile();
+  return md.mobile();
 }
 
-export function windowSize() {
-    return [window.innerWidth, window.innerHeight];
-}
+event("client", { mobile: isMobile() });

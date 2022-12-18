@@ -1,9 +1,9 @@
+import { startDataLoadingForPromise } from "../services/events";
+
 const BASE_URL = "http://localhost:8088/";
 const stationUrl = BASE_URL + "stations";
 const allStationUrl = BASE_URL + "station";
-const allBusesUrl = BASE_URL + "buses";
 const busesUrl = stationUrl + "/";
-const busesStationUrl = allBusesUrl + "/";
 const busesTimePrefixUrl = stationUrl + "/";
 const busesTimeSuffixUrl = "/bus/";
 const busesCurTimeUrl = "/time";
@@ -62,39 +62,33 @@ class Buses {
   static stationsPromise = null;
   static getAllStations() {
     if (Buses.allStationsPromise === null) {
+      const dataLoadFunc = startDataLoadingForPromise("getAllStations");
       Buses.allStationsPromise = fetchFromServer(allStationUrl)
         .then((result) => result.json())
-        .then((json) => stationsToValidJson(json));
+        .then((json) => stationsToValidJson(json))
+        .then(dataLoadFunc);
     }
     return Buses.allStationsPromise;
   }
   static getStations() {
     if (Buses.stationsPromise === null) {
+      const dataLoadFunc = startDataLoadingForPromise("getStations");
       Buses.stationsPromise = fetchFromServer(stationUrl)
         .then((result) => result.json())
-        .then((json) => stationsToValidJson(json));
+        .then((json) => stationsToValidJson(json))
+        .then(dataLoadFunc);
     }
     return Buses.stationsPromise;
   }
-
-  static getBuses() {
-    return fetchFromServer(allBusesUrl)
-      .then((result) => result.json())
-      .then((json) => busesToValidJson(json));
-  }
-
-  static getBusesStations(busesIds) {
-    const fetchUrl = busesStationUrl + busesIds.join(",");
-    return fetchFromServer(fetchUrl)
-      .then((result) => result.json())
-      .then((json) => stationsToValidJson(json));
-  }
-
   static getStationBuses(stationId) {
     const fetchUrl = busesUrl + stationId;
+    const dataLoadFunc = startDataLoadingForPromise("getStationBuses", {
+      stationId,
+    });
     return fetchFromServer(fetchUrl)
       .then((result) => result.json())
-      .then((json) => busesToValidJson(json));
+      .then((json) => busesToValidJson(json))
+      .then(dataLoadFunc);
   }
 
   static getBusesTimes(stationId, busId) {
@@ -109,9 +103,14 @@ class Buses {
         };
       });
     };
+    const dataLoadFunc = startDataLoadingForPromise("getBusesTimes", {
+      stationId,
+      busId,
+    });
     return fetchFromServer(fetchUrl)
       .then((result) => result.json())
-      .then((json) => busesTimeToValidJson(json));
+      .then((json) => busesTimeToValidJson(json))
+      .then(dataLoadFunc);
   }
 
   static getBusesCurTimes(stationId, busId) {
@@ -121,6 +120,10 @@ class Buses {
       busesTimeSuffixUrl +
       busId +
       busesCurTimeUrl;
+    const dataLoadFunc = startDataLoadingForPromise("getBusesCurTimes", {
+      stationId,
+      busId,
+    });
     return fetchFromServer(fetchUrl)
       .then((result) => result.text())
       .then((res) => {
@@ -128,11 +131,19 @@ class Buses {
           res = parseInt(res, 10);
         }
         return res;
-      });
+      })
+      .then(dataLoadFunc);
   }
   static getRoutes(originPlace, destinationPlace, time) {
     const fetchUrl = `${BASE_URL}routes/${originPlace}/${destinationPlace}/${time}/route`;
-    return fetchFromServer(fetchUrl).then((result) => result.json());
+    const dataLoadFunc = startDataLoadingForPromise("getRoutes", {
+      originPlace,
+      destinationPlace,
+      time,
+    });
+    return fetchFromServer(fetchUrl)
+      .then((result) => result.json())
+      .then(dataLoadFunc);
   }
 }
 

@@ -7,6 +7,7 @@
     "geolib": "^3.3.3",
     "js-cookie": "^3.0.1",
     "mobile-detect": "^1.4.5",
+    "posthog-js": "^1.38.1",
     "rc-time-picker": "^3.7.3",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
