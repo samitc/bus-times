@@ -2,9 +2,11 @@ import React, { Component } from "react";
 import Buses from "../data/Buses";
 import TimePicker from "rc-time-picker";
 import moment from "moment";
+import { getLocation } from "../services/Gps";
 import InputChoseBox from "./InputChoseBox";
 import LoaderComponent from "./Loader/Loader";
 import { event } from "../services/events";
+import { sortByDistanceInPlace } from "../utils/Stations";
 export default class RoutePanel extends Component {
   constructor() {
     super();
@@ -18,9 +20,16 @@ export default class RoutePanel extends Component {
     };
   }
   componentDidMount() {
-    Buses.getAllStations().then((stations) =>
-      this.setState({ stations: stations })
-    );
+    Buses.getAllStations().then((stations) => {
+      this.setState({ stations });
+      getLocation()
+        .then((location) => {
+          const stationsByDistance = stations.slice();
+          sortByDistanceInPlace(stationsByDistance, location);
+          this.setState({ stations: stationsByDistance });
+        })
+        .catch((err) => this.setState({ appError: err }));
+    });
   }
   static checkEqualNotNull(preVal, val) {
     return val !== null && preVal !== val;
