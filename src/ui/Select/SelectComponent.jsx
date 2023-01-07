@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import Select from "react-select";
 const SIZE_OF_OPTION = 34;
 const LAST_OPTION_MARGIN = 14;
@@ -41,6 +41,22 @@ export default function SelectComponent({
       ? filteredItems.slice(0, maxItems)
       : filteredItems;
   }, [filteredItems, maxItems]);
+  const onChange = useCallback((selectedOptions, changeType) => {
+    if (onValueChange) {
+      const { action, option, removedValue } = changeType;
+      if (action === "select-option") {
+        onValueChange(selectedOptions, {
+          addedOption: option,
+          addedIndex: items.findIndex((item) => item === option),
+          input,
+        });
+      } else if (action === "remove-value") {
+        onValueChange(selectedOptions, { removedOption: removedValue, input });
+      } else {
+        onValueChange(selectedOptions, { input });
+      }
+    }
+  });
   return (
     <Select
       options={shownItems || []}
@@ -49,7 +65,7 @@ export default function SelectComponent({
       placeholder={placeholder}
       noOptionsMessage={() => emptyFilterValue}
       onInputChange={inputChange}
-      onChange={onValueChange}
+      onChange={onChange}
       isMulti={isMulti}
       onMenuOpen={onOpen}
       onMenuClose={onClose}

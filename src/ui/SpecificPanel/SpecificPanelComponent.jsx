@@ -26,11 +26,24 @@ export default function SpecificPanelComponent({ stations, onDataChanged }) {
     setBusValue(newBusValues);
     updateData(stations, newBusValues);
   };
-  const onStationsChanged = (stations) => {
+  const onStationsChanged = (stations, options) => {
+    const {
+      addedOption: addedStation,
+      addedIndex,
+      removedOption: removedStation,
+      input,
+    } = options;
     event("station select", {
       kind: "select",
       screen: "specific",
+      input,
+      inputLength: input.length,
       stations: stations && stations.map((station) => station.id),
+      ...(addedStation && {
+        addedStation: addedStation.id,
+        addedIndex,
+      }),
+      ...(removedStation && { removedStation: removedStation.id }),
     });
     setStationValue(stations);
     if (stations) {
@@ -43,11 +56,24 @@ export default function SpecificPanelComponent({ stations, onDataChanged }) {
       changeBuses(null);
     }
   };
-  const onBusesChanged = (buses) => {
+  const onBusesChanged = (buses, options) => {
+    const {
+      addedOption: addedBus,
+      addedIndex,
+      removedOption: removedBus,
+      input,
+    } = options;
     event("bus select", {
       kind: "select",
       screen: "specific",
+      input,
+      inputLength: input.length,
       buses: buses && buses.map((bus) => bus.id),
+      ...(addedBus && {
+        addedBus: addedBus.id,
+        addedIndex,
+      }),
+      ...(removedBus && { removedBus: removedBus.id }),
     });
     setBusValue(buses);
     updateData(stations, buses);

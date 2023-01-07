@@ -140,10 +140,25 @@ export default class RoutePanel extends Component {
           <InputChoseBox
             items={startPointStations}
             keyboard={this.props.keyboard}
-            onSelectedChanged={(station) => {
+            onSelectedChanged={(station, options) => {
+              const {
+                addedOption: addedStation,
+                addedIndex,
+                removedOption: removedStation,
+                input,
+              } = options;
               event("routes", {
                 kind: "choose start station",
                 station: station.id,
+                screen: "route",
+                input,
+                inputLength: input.length,
+                stations: station && [station.id],
+                ...(addedStation && {
+                  addedStation: addedStation.id,
+                  addedIndex,
+                }),
+                ...(removedStation && { removedStation: removedStation.id }),
               });
               this.setState({ originStation: station });
             }}
@@ -165,10 +180,25 @@ export default class RoutePanel extends Component {
           <InputChoseBox
             items={endPointStations}
             keyboard={this.props.keyboard}
-            onSelectedChanged={(station) => {
+            onSelectedChanged={(station, options) => {
+              const {
+                addedOption: addedStation,
+                addedIndex,
+                removedOption: removedStation,
+                input,
+              } = options;
               event("routes", {
                 kind: "choose stop station",
                 station: station.id,
+                screen: "route",
+                input,
+                inputLength: input.length,
+                stations: station && [station.id],
+                ...(addedStation && {
+                  addedStation: addedStation.id,
+                  addedIndex,
+                }),
+                ...(removedStation && { removedStation: removedStation.id }),
               });
               this.setState({ destinationStation: station });
             }}

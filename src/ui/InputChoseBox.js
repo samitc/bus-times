@@ -24,8 +24,8 @@ export default class InputChoseBox extends Component {
     return (
       <ChoseBox
         items={this.props.items}
-        onSelectedChanged={(item) => {
-          this.props.onSelectedChanged(item);
+        onSelectedChanged={(item, options) => {
+          this.props.onSelectedChanged(item, options);
         }}
         numOfOptions={isMobile() ? 4 : 7}
         selectOpened={openKeyboard}
