@@ -32,6 +32,7 @@ export default function SelectComponent({
         ? items.filter((item) => filterFunction(item, input))
         : items;
     onFilteredItemsChanged &&
+      input &&
       onFilteredItemsChanged(filteredItems, { input, maxItems });
     return filteredItems;
   }, [items, filterFunction, input]);

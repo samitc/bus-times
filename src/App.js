@@ -3,7 +3,6 @@ import "./App.css";
 import BusesTimes from "./ui/BusesTimes";
 import { isMobile } from "./utils/env";
 import classNames from "classnames";
-import { initializeGA, changeScreen } from "./utils/GA";
 import { stationBusesHash } from "./data/Buses";
 import TimePicker from "rc-time-picker";
 import "rc-time-picker/assets/index.css";
@@ -20,7 +19,6 @@ import { event } from "./services/events";
 class App extends Component {
   constructor() {
     super();
-    initializeGA();
     EventsService.init();
     this.isMobile = isMobile();
     this.state = {
@@ -185,7 +183,6 @@ class App extends Component {
             onChange={() => {
               const isRoute = !this.state.isRoute;
               event("screenPage", { isRoute });
-              changeScreen(isRoute ? "real time by station" : "route");
               this.setState({ isRoute, busesData: null });
             }}
             onColor="#86d3ff"
