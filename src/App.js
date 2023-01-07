@@ -4,7 +4,6 @@ import BusesTimes from "./ui/BusesTimes";
 import { isMobile } from "./utils/env";
 import classNames from "classnames";
 import { initializeGA, changeScreen } from "./utils/GA";
-import posthog from "posthog-js";
 import { stationBusesHash } from "./data/Buses";
 import TimePicker from "rc-time-picker";
 import "rc-time-picker/assets/index.css";
@@ -15,17 +14,14 @@ import Keyboard from "./services/Keyboard";
 import Gps, { getLocation } from "./services/Gps";
 import Switch from "react-switch";
 import RoutePanel from "./ui/RoutePanel";
+import * as EventsService from "./services/posthog";
 import { timeToString } from "./utils/time";
 import { event } from "./services/events";
 class App extends Component {
   constructor() {
     super();
     initializeGA();
-    if (process.env.NODE_ENV !== "test") {
-      posthog.init("phc_nIxEAypzDBOtmPJaFv1VGnyscRtHnBBPsaRcKz2Gf9k", {
-        api_host: "https://app.posthog.com",
-      });
-    }
+    EventsService.init();
     this.isMobile = isMobile();
     this.state = {
       busesData: null,
