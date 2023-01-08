@@ -1,5 +1,4 @@
-import { Component } from "react";
-import React from "react";
+import React, { Component } from "react";
 import SelectComponent from "./Select/SelectComponent";
 
 class ChoseBox extends Component {
@@ -53,6 +52,7 @@ class ChoseBox extends Component {
           onInputChange={inputChange}
           filterFunction={this.selectFilter.bind(this)}
           maxShownItems={this.props.numOfOptions}
+          onFilteredItemsChanged={this.props.onFilteredItemsChanged}
           maxItems={50}
         />
       )
