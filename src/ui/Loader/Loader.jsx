@@ -1,4 +1,4 @@
-import React from 'react';
-export default function LoaderComponent({ isLoading }) {
-    return isLoading ? <img src="loader.gif" /> : <></>;
+import React from "react";
+export default function LoaderComponent({ isLoading = true }) {
+  return isLoading ? <img src="loader.gif" /> : <></>;
 }

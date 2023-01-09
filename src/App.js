@@ -14,6 +14,7 @@ import RoutePanel from "./ui/RoutePanel";
 import * as EventsService from "./services/posthog";
 import { timeToString } from "./utils/time";
 import { event } from "./services/events";
+import LoaderComponent from "./ui/Loader/Loader";
 class App extends Component {
   constructor() {
     super();
@@ -56,11 +57,27 @@ class App extends Component {
       this.setState({ appError: null, stations: stationsByDistance });
     }
   };
+  renderUserChooseInput = () => {
+    return this.state.isRoute ? (
+      <RoutePanel
+        stations={this.state.stations}
+        setData={(data) => this.setState({ busesData: data })}
+        onError={(err) => this.setState({ appError: err })}
+      />
+    ) : (
+      <SpecificPanelComponent
+        stations={this.state.stations}
+        onDataChanged={(data) => this.setState({ busesData: data })}
+      />
+    );
+  };
   render() {
+    const { isLoading, isRoute, endTime, startTime, busesData, appError } =
+      this.state;
     const printBusesTimes = () => {
       const stationBuses = new Map();
-      this.state.busesData &&
-        this.state.busesData.forEach((data) => {
+      busesData &&
+        busesData.forEach((data) => {
           const { originStation, bus } = data;
           if (bus) {
             if (!stationBuses.get(originStation.id)) {
@@ -82,8 +99,8 @@ class App extends Component {
                 stationId={stationId}
                 busId={bus.id}
                 busNumber={bus.label}
-                filterTimeStart={this.state.startTime}
-                filterTimeEnd={this.state.endTime}
+                filterTimeStart={startTime}
+                filterTimeEnd={endTime}
               />
             ))}
           </div>
@@ -92,11 +109,11 @@ class App extends Component {
     };
     const printRoute = () => {
       return (
-        this.state.busesData && (
+        busesData && (
           <>
             <div>
               <h2>תיאור המסלול:</h2>
-              {this.state.busesData.map((data) => {
+              {busesData.map((data) => {
                 const {
                   destinationStation,
                   originStation,
@@ -129,8 +146,8 @@ class App extends Component {
     };
     const printCurBusesTimes = () => {
       return (
-        this.state.busesData &&
-        this.state.busesData.map((data) => {
+        busesData &&
+        busesData.map((data) => {
           const { originStation, bus } = data;
           return (
             bus && (
@@ -155,8 +172,8 @@ class App extends Component {
       return (parseInt(strArr[0], 10) * 60 + parseInt(strArr[1], 10)) * 60;
     };
     const createError = () => {
-      if (this.state.appError) {
-        return <span className="Error">{this.state.appError.message}</span>;
+      if (appError) {
+        return <span className="Error">{appError.message}</span>;
       }
     };
     return (
@@ -168,11 +185,11 @@ class App extends Component {
         <div>
           <label className="Switch-button">חפש לפי מסלול</label>
           <Switch
-            checked={this.state.isRoute}
+            checked={isRoute}
             onChange={() => {
-              const isRoute = !this.state.isRoute;
-              event("screenPage", { isRoute });
-              this.setState({ isRoute, busesData: null });
+              const nextScreen = !isRoute;
+              event("screenPage", { isRoute: nextScreen });
+              this.setState({ isRoute: nextScreen, busesData: null });
             }}
             onColor="#86d3ff"
             onHandleColor="#2693e6"
@@ -186,17 +203,12 @@ class App extends Component {
             className="Ltr-align"
           />
         </div>
-        {this.state.isRoute ? (
-          <RoutePanel
-            stations={this.state.stations}
-            setData={(data) => this.setState({ busesData: data })}
-            onError={(err) => this.setState({ appError: err })}
-          />
+        {isLoading ? (
+          <div>
+            <LoaderComponent />
+          </div>
         ) : (
-          <SpecificPanelComponent
-            stations={this.state.stations}
-            onDataChanged={(data) => this.setState({ busesData: data })}
-          />
+          this.renderUserChooseInput()
         )}
         <label>סנן לפי זמן התחלה: </label>
         <TimePicker
@@ -211,19 +223,15 @@ class App extends Component {
           }}
           disabledHours={() => {
             const arr = [];
-            for (let v = App.timeToHour(this.state.endTime) + 1; v < 24; v++) {
+            for (let v = App.timeToHour(endTime) + 1; v < 24; v++) {
               arr.push(v);
             }
             return arr;
           }}
           disabledMinutes={(h) => {
             const arr = [];
-            if (h === App.timeToHour(this.state.endTime)) {
-              for (
-                let v = App.timeToMinute(this.state.endTime, h) + 1;
-                v < 60;
-                v++
-              ) {
+            if (h === App.timeToHour(endTime)) {
+              for (let v = App.timeToMinute(endTime, h) + 1; v < 60; v++) {
                 arr.push(v);
               }
             }
@@ -243,26 +251,22 @@ class App extends Component {
           }}
           disabledHours={() => {
             const arr = [];
-            for (let v = 0; v < App.timeToHour(this.state.startTime); v++) {
+            for (let v = 0; v < App.timeToHour(startTime); v++) {
               arr.push(v);
             }
             return arr;
           }}
           disabledMinutes={(h) => {
             const arr = [];
-            if (h === App.timeToHour(this.state.startTime)) {
-              for (
-                let v = 0;
-                v < App.timeToMinute(this.state.startTime, h);
-                v++
-              ) {
+            if (h === App.timeToHour(startTime)) {
+              for (let v = 0; v < App.timeToMinute(startTime, h); v++) {
                 arr.push(v);
               }
             }
             return arr;
           }}
         />
-        {this.state.isRoute && printRoute()}
+        {isRoute && printRoute()}
         {printCurBusesTimes()}
         {printBusesTimes()}
       </div>

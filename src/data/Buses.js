@@ -70,16 +70,6 @@ class Buses {
     }
     return Buses.allStationsPromise;
   }
-  static getStations() {
-    if (Buses.stationsPromise === null) {
-      const dataLoadFunc = startDataLoadingForPromise("getStations");
-      Buses.stationsPromise = fetchFromServer(stationUrl)
-        .then((result) => result.json())
-        .then((json) => stationsToValidJson(json))
-        .then(dataLoadFunc);
-    }
-    return Buses.stationsPromise;
-  }
   static getStationBuses(stationId) {
     const fetchUrl = busesUrl + stationId;
     const dataLoadFunc = startDataLoadingForPromise("getStationBuses", {
