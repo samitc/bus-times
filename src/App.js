@@ -28,13 +28,22 @@ class App extends Component {
       appError: null,
       isLoading: false,
       stations: null,
+      isLocationFound: false,
     };
     this.gps = new Gps(10000);
   }
   componentDidMount() {
     this.setState({ isLoading: true });
     getAllStations().then((stations) => {
-      this.setState({ stations, isLoading: false });
+      const location = this.gps.getLocation();
+      if (location) {
+        sortByDistanceInPlace(stations, location);
+      }
+      this.setState({
+        stations,
+        isLoading: false,
+        isLocationFound: !!location,
+      });
     });
     this.gps.addCallback(this.locationCallback);
   }
@@ -49,12 +58,18 @@ class App extends Component {
   }
   locationCallback = (location) => {
     if (location === null) {
-      this.setState({ appError: this.gps.getErrorReason() });
+      this.setState({
+        appError: this.gps.getErrorReason(),
+        isLocationFound: false,
+      });
     } else {
-      const { stations } = this.state;
-      const stationsByDistance = stations.slice();
-      sortByDistanceInPlace(stationsByDistance, location);
-      this.setState({ appError: null, stations: stationsByDistance });
+      const { stations, isLocationFound } = this.state;
+      if (stations && !isLocationFound) {
+        const stationsByDistance = stations.slice();
+        sortByDistanceInPlace(stationsByDistance, location);
+        this.setState({ stations: stationsByDistance });
+      }
+      this.setState({ appError: null, isLocationFound: true });
     }
   };
   renderUserChooseInput = () => {
