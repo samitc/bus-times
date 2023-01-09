@@ -26,10 +26,15 @@ export function getLocation() {
   });
 }
 export default class Gps extends Service {
-  constructor() {
+  constructor(refreshTimeout) {
     super();
     this.location = null;
     this.errorReason = null;
+    const refreshFunction = () => {
+      this.calcLocation();
+      setTimeout(refreshFunction, refreshTimeout);
+    };
+    refreshFunction();
   }
   calcLocation() {
     if (navigator.geolocation) {

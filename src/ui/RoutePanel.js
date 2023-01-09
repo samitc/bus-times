@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import Buses from "../data/Buses";
 import TimePicker from "rc-time-picker";
 import moment from "moment";
-import { getLocation } from "../services/Gps";
 import InputChoseBox from "./InputChoseBox";
 import LoaderComponent from "./Loader/Loader";
 import { event } from "../services/events";
@@ -11,7 +10,6 @@ export default class RoutePanel extends Component {
   constructor() {
     super();
     this.state = {
-      stations: [],
       originStation: null,
       destinationStation: null,
       time: moment(),
@@ -19,23 +17,11 @@ export default class RoutePanel extends Component {
       isLoading: false,
     };
   }
-  componentDidMount() {
-    Buses.getAllStations().then((stations) => {
-      this.setState({ stations });
-      getLocation()
-        .then((location) => {
-          const stationsByDistance = stations.slice();
-          sortByDistanceInPlace(stationsByDistance, location);
-          this.setState({ stations: stationsByDistance });
-        })
-        .catch((err) => this.setState({ appError: err }));
-    });
-  }
   static checkEqualNotNull(preVal, val) {
     return val !== null && preVal !== val;
   }
   getStationData(stationId) {
-    return this.state.stations.find((station) => stationId === station.id);
+    return this.props.stations.find((station) => stationId === station.id);
   }
   async calcRoute(routeCalculationId) {
     this.setState({ isLoading: true });
@@ -124,15 +110,15 @@ export default class RoutePanel extends Component {
   }
   render() {
     const startPointStations = this.state.destinationStation
-      ? this.state.stations.filter(
+      ? this.props.stations.filter(
           (station) => station.id !== this.state.destinationStation.id
         )
-      : this.state.stations;
+      : this.props.stations;
     const endPointStations = this.state.originStation
-      ? this.state.stations.filter(
+      ? this.props.stations.filter(
           (station) => station.id !== this.state.originStation.id
         )
-      : this.state.stations;
+      : this.props.stations;
     return (
       <div>
         <div>

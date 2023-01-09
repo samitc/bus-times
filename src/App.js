@@ -8,7 +8,7 @@ import "rc-time-picker/assets/index.css";
 import CurBusesTimes from "./ui/CurBusesTimes";
 import SpecificPanelComponent from "./ui/SpecificPanel/SpecificPanelComponent";
 import { getAllStations, sortByDistanceInPlace } from "./utils/Stations";
-import Gps, { getLocation } from "./services/Gps";
+import Gps from "./services/Gps";
 import Switch from "react-switch";
 import RoutePanel from "./ui/RoutePanel";
 import * as EventsService from "./services/posthog";
@@ -25,28 +25,17 @@ class App extends Component {
       startTime: 0,
       endTime: 86400,
       appError: null,
-
+      isLoading: false,
       stations: null,
     };
-    this.gps = new Gps();
+    this.gps = new Gps(10000);
   }
   componentDidMount() {
+    this.setState({ isLoading: true });
     getAllStations().then((stations) => {
-      this.setState({ stations });
-      getLocation()
-        .then((location) => {
-          const stationsByDistance = stations.slice();
-          sortByDistanceInPlace(stationsByDistance, location);
-          this.setState({ stations: stationsByDistance });
-        })
-        .catch((err) => this.setState({ appError: err }));
+      this.setState({ stations, isLoading: false });
     });
-    this.gpsCallback = (location) => {
-      if (location === null) {
-        this.setState({ appError: this.gps.getErrorReason() });
-      }
-    };
-    this.gps.addCallback(this.gpsCallback);
+    this.gps.addCallback(this.locationCallback);
   }
   componentWillUnmount() {
     this.gps.removeCallback(this.gpsCallback);
@@ -54,10 +43,19 @@ class App extends Component {
   static timeToHour(time) {
     return Math.trunc(time / (60 * 60));
   }
-
   static timeToMinute(time, hour) {
     return Math.trunc(time / 60 - hour * 60);
   }
+  locationCallback = (location) => {
+    if (location === null) {
+      this.setState({ appError: this.gps.getErrorReason() });
+    } else {
+      const { stations } = this.state;
+      const stationsByDistance = stations.slice();
+      sortByDistanceInPlace(stationsByDistance, location);
+      this.setState({ appError: null, stations: stationsByDistance });
+    }
+  };
   render() {
     const printBusesTimes = () => {
       const stationBuses = new Map();
@@ -190,6 +188,7 @@ class App extends Component {
         </div>
         {this.state.isRoute ? (
           <RoutePanel
+            stations={this.state.stations}
             setData={(data) => this.setState({ busesData: data })}
             onError={(err) => this.setState({ appError: err })}
           />
