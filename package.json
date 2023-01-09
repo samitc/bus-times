@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "classnames": "^2.3.1",
     "geolib": "^3.3.3",
     "js-cookie": "^3.0.1",
     "mobile-detect": "^1.4.5",

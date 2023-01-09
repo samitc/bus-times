@@ -45,8 +45,6 @@ class ChoseBox extends Component {
           placeholder={this.props.noValue}
           onValueChange={this.props.onSelectedChanged}
           emptyFilterValue={this.props.emptyFilterValue}
-          onOpen={this.props.selectOpened}
-          onClose={this.props.selectClosed}
           value={this.props.value}
           isMulti={this.props.multi}
           onInputChange={inputChange}

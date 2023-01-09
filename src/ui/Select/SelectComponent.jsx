@@ -10,8 +10,6 @@ export default function SelectComponent({
   placeholder,
   emptyFilterValue,
   filterFunction,
-  onOpen,
-  onClose,
   onValueChange,
   onInputChange,
   onFilteredItemsChanged,
@@ -67,8 +65,6 @@ export default function SelectComponent({
       onInputChange={inputChange}
       onChange={onChange}
       isMulti={isMulti}
-      onMenuOpen={onOpen}
-      onMenuClose={onClose}
       hideSelectedOptions={true}
       isRtl={true}
     />

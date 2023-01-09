@@ -19,8 +19,6 @@ export default class InputChoseBox extends Component {
     }
   };
   render() {
-    const openKeyboard = () => this.props.keyboard.setHasKeyboard(true);
-    const closeKeyboard = () => this.props.keyboard.setHasKeyboard(false);
     return (
       <ChoseBox
         items={this.props.items}
@@ -28,10 +26,6 @@ export default class InputChoseBox extends Component {
           this.props.onSelectedChanged(item, options);
         }}
         numOfOptions={isMobile() ? 4 : 7}
-        selectOpened={openKeyboard}
-        selectClosed={() => {
-          closeKeyboard();
-        }}
         noValue={this.props.noValue}
         emptyFilterValue="הקלד כדי לחפש"
         onFilteredItemsChanged={this.onFilteredItemsChanged}

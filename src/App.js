@@ -2,14 +2,12 @@ import React, { Component } from "react";
 import "./App.css";
 import BusesTimes from "./ui/BusesTimes";
 import { isMobile } from "./utils/env";
-import classNames from "classnames";
 import { stationBusesHash } from "./data/Buses";
 import TimePicker from "rc-time-picker";
 import "rc-time-picker/assets/index.css";
 import CurBusesTimes from "./ui/CurBusesTimes";
 import SpecificPanelComponent from "./ui/SpecificPanel/SpecificPanelComponent";
 import { getAllStations, sortByDistanceInPlace } from "./utils/Stations";
-import Keyboard from "./services/Keyboard";
 import Gps, { getLocation } from "./services/Gps";
 import Switch from "react-switch";
 import RoutePanel from "./ui/RoutePanel";
@@ -30,7 +28,6 @@ class App extends Component {
 
       stations: null,
     };
-    this.keyboard = new Keyboard();
     this.gps = new Gps();
   }
   componentDidMount() {
@@ -44,17 +41,14 @@ class App extends Component {
         })
         .catch((err) => this.setState({ appError: err }));
     });
-    this.keyboardCallback = () => this.forceUpdate();
     this.gpsCallback = (location) => {
       if (location === null) {
         this.setState({ appError: this.gps.getErrorReason() });
       }
     };
-    this.keyboard.addCallback(this.keyboardCallback);
     this.gps.addCallback(this.gpsCallback);
   }
   componentWillUnmount() {
-    this.keyboard.removeCallback(this.keyboardCallback);
     this.gps.removeCallback(this.gpsCallback);
   }
   static timeToHour(time) {
@@ -167,12 +161,9 @@ class App extends Component {
         return <span className="Error">{this.state.appError.message}</span>;
       }
     };
-    const headerClasses = classNames("App-header", {
-      "App-header-shrink": isMobile() && this.keyboard.hasKeyboard(),
-    });
     return (
       <div className="App">
-        <header className={headerClasses}>
+        <header className="App-header">
           <h1 className="App-title">זמני אוטובוס</h1>
         </header>
         {createError()}
@@ -200,7 +191,6 @@ class App extends Component {
         {this.state.isRoute ? (
           <RoutePanel
             setData={(data) => this.setState({ busesData: data })}
-            keyboard={this.keyboard}
             onError={(err) => this.setState({ appError: err })}
           />
         ) : (

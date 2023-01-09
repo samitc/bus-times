@@ -139,7 +139,6 @@ export default class RoutePanel extends Component {
           <span>נקודת התחלה</span>
           <InputChoseBox
             items={startPointStations}
-            keyboard={this.props.keyboard}
             onSelectedChanged={(station, options) => {
               const {
                 addedOption: addedStation,
@@ -179,7 +178,6 @@ export default class RoutePanel extends Component {
           <span>נקודת סיום</span>
           <InputChoseBox
             items={endPointStations}
-            keyboard={this.props.keyboard}
             onSelectedChanged={(station, options) => {
               const {
                 addedOption: addedStation,
