@@ -21,7 +21,7 @@ class App extends Component {
     this.isMobile = isMobile();
     this.state = {
       busesData: null,
-      isRoute: true,
+      isRoute: false,
       startTime: 0,
       endTime: 86400,
       appError: null,
