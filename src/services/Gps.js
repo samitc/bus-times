@@ -1,7 +1,14 @@
 import { event } from "./events";
 import Service from "./Service";
-function sendGpsEvent(locationFound, errorCode) {
-  event("gps", { locationFound, errorCode });
+let gpsEventData = {};
+function handleGpsCb(locationFound, err) {
+  const { code: errorCode, message: errorMessage } = err || {};
+  const newGpsEventData = { locationFound, errorCode };
+  if (JSON.stringify(gpsEventData) !== JSON.stringify(newGpsEventData)) {
+    console.log(errorMessage);
+    gpsEventData = newGpsEventData;
+    event("gps", gpsEventData);
+  }
 }
 export default class Gps extends Service {
   constructor(refreshTimeout) {
@@ -22,18 +29,19 @@ export default class Gps extends Service {
             lat: position.coords.latitude,
             lon: position.coords.longitude,
           };
-          sendGpsEvent(true);
+          handleGpsCb(true);
           this.onChanged(this.location);
         },
         (err) => {
-          sendGpsEvent(false, err.code);
+          handleGpsCb(false, err);
           this.errorReason = new Error("מיקום אינו זמין");
           this.onChanged(null);
         }
       );
     } else {
-      sendGpsEvent(false, -1);
+      handleGpsCb(false, { code: -1, message: "מיקום אינו זמין" });
       this.errorReason = new Error("מיקום אינו זמין");
+      this.onChanged(null);
     }
   }
   isLocationOk() {
