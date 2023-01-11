@@ -7,7 +7,7 @@
   background-color: #222;
   height: 80px;
   transition: height 1s ease-in;
-  padding: 00px;
+  padding: 0px;
   color: white;
 }
 
@@ -114,7 +114,6 @@
   width: 100%;
 }
 
-/* desktop css */
-.Buses-times-list-desktop {
+.Buses-times-list-item {
   width: 50%;
 }

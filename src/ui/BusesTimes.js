@@ -117,12 +117,7 @@ class BusesTimes extends Component {
         <br />
         <ul className={classNames("Buses-times-list", { expend: isExpend })}>
           {timesToRender.map((value) => (
-            <li
-              className={classNames({
-                "Buses-times-list-desktop": !isMobile(),
-              })}
-              key={value.id}
-            >
+            <li className="Buses-times-list-item" key={value.id}>
               {BusesTimes.busTimeToString(
                 value.time,
                 value.count,
