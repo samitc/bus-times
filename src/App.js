@@ -4,6 +4,7 @@ import BusesTimes from "./ui/BusesTimes";
 import { isMobile } from "./utils/env";
 import { stationBusesHash } from "./data/Buses";
 import TimePicker from "rc-time-picker";
+import moment from "moment";
 import "rc-time-picker/assets/index.css";
 import CurBusesTimes from "./ui/CurBusesTimes";
 import SpecificPanelComponent from "./ui/SpecificPanel/SpecificPanelComponent";
@@ -90,6 +91,7 @@ class App extends Component {
     const { isLoading, isRoute, endTime, startTime, busesData, appError } =
       this.state;
     const printBusesTimes = () => {
+      const viewStartTime = startTime || getTimeFromPicker(moment(), 0);
       const stationBuses = new Map();
       busesData &&
         busesData.forEach((data) => {
@@ -114,6 +116,7 @@ class App extends Component {
                 stationId={stationId}
                 busId={bus.id}
                 busNumber={bus.label}
+                viewStartTime={viewStartTime}
                 filterTimeStart={startTime}
                 filterTimeEnd={endTime}
               />
@@ -230,11 +233,12 @@ class App extends Component {
           className="Time-picker-filter"
           showSecond={false}
           onChange={(time) => {
+            const startTime = getTimeFromPicker(time, 0);
             event("time filter", {
               type: "start time",
-              time: getTimeFromPicker(time, 86400),
+              time: startTime,
             });
-            this.setState({ startTime: getTimeFromPicker(time, 0) });
+            this.setState({ startTime });
           }}
           disabledHours={() => {
             const arr = [];
@@ -258,11 +262,12 @@ class App extends Component {
           className="Time-picker-filter"
           showSecond={false}
           onChange={(time) => {
+            const endTime = getTimeFromPicker(time, 86400);
             event("time filter", {
               type: "end time",
-              time: getTimeFromPicker(time, 86400),
+              time: endTime,
             });
-            this.setState({ endTime: getTimeFromPicker(time, 86400) });
+            this.setState({ endTime });
           }}
           disabledHours={() => {
             const arr = [];

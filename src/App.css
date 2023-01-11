@@ -1,104 +1,120 @@
 .App {
-    direction: rtl;
-    text-align: center;
+  direction: rtl;
+  text-align: center;
 }
 
 .App-header {
-    background-color: #222;
-    height: 80px;
-    transition: height 1s ease-in;
-    padding: 00px;
-    color: white;
+  background-color: #222;
+  height: 80px;
+  transition: height 1s ease-in;
+  padding: 00px;
+  color: white;
 }
 
 .App-title {
-    font-size: 1.5em;
-    position: relative;
-    top: 50%;
-    padding: 0;
-    transform: translateY(-50%);
-    margin-block-start: 0;
+  font-size: 1.5em;
+  position: relative;
+  top: 50%;
+  padding: 0;
+  transform: translateY(-50%);
+  margin-block-start: 0;
 }
 
 .App-intro {
-    font-size: large;
-    margin-block-start: 0;
-    margin-block-end: 0;
-    margin: 20px;
-    transition: margin 1s ease-in;
+  font-size: large;
+  margin-block-start: 0;
+  margin-block-end: 0;
+  margin: 20px;
+  transition: margin 1s ease-in;
 }
 
 .App-header-shrink {
-    height: 40px;
-    transition: height 1s ease-out;
+  height: 40px;
+  transition: height 1s ease-out;
 }
 
 .App-intro-shrink {
-    margin: 5px;
-    transition: margin 1s ease-out;
+  margin: 5px;
+  transition: margin 1s ease-out;
 }
 
 .Buses-times {
-    clear: both;
+  clear: both;
 }
 
 .Buses-times-list-desc {
-    list-style: none;
-    padding-inline-start: 0px;
-    max-height: 80px;
-    overflow-y: auto;
+  list-style: none;
+  padding-inline-start: 0px;
+  max-height: 80px;
+  overflow-y: auto;
 }
 
 .Buses-times-list {
-    list-style: none;
-    padding-inline-start: 0px;
-    max-height: 80px;
-    overflow-y: auto;
-    margin: 0 0 0 0;
+  list-style: none;
+  padding-inline-start: 0px;
+  max-height: 90px;
+  overflow-y: hidden;
+  margin: 0 0 0 0;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.Buses-times-list.expend {
+  max-height: unset;
+  overflow-y: unset;
 }
 
 .Ltr-align {
-    direction: ltr;
+  direction: ltr;
 }
 
 .Full-width {
-    width: 100%;
+  width: 100%;
 }
 
 .Flex-display {
-    display: flex;
-    flex-direction: row;
+  display: flex;
+  flex-direction: row;
 }
 
 .Time-picker-filter {
-    width: 50px;
+  width: 50px;
 }
-
-.Arrow-up {
-    font-size: 12px;
-    transform: rotate(90deg);
+.expend-container {
+  width: 100%;
+  transform: translateY(-100%);
+  background: rgba(255, 255, 255, 0.5);
 }
-
-.Arrow-down {
-    font-size: 12px;
-    transform: rotate(-90deg);
+.expend-container.expend {
+  width: 100%;
+  transform: unset;
+  background: rgba(255, 255, 255, 1);
 }
-
+.expend-button {
+  opacity: unset;
+  background: white;
+  border: none;
+  font-size: 16px;
+}
+.expend-button:hover {
+  cursor: pointer;
+  background-color: #d3d3d3;
+  border-radius: 8px;
+}
 .Error {
-    color: #D8000C;
-    background-color: #FFD2D2;
-    padding:0 12px 0 12px;
+  color: #d8000c;
+  background-color: #ffd2d2;
+  padding: 0 12px 0 12px;
 }
-.Switch-button{
-    margin: 0 0 0 4px;
+.Switch-button {
+  margin: 0 0 0 4px;
 }
 
-.User-control-panel{
-    width: 100%;
+.User-control-panel {
+  width: 100%;
 }
 
 /* desktop css */
 .Buses-times-list-desktop {
-    float: right;
-    width: 50%;
+  width: 50%;
 }
