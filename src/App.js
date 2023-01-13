@@ -12,14 +12,13 @@ import { getAllStations, sortByDistanceInPlace } from "./utils/Stations";
 import Gps from "./services/Gps";
 import Switch from "react-switch";
 import RoutePanel from "./ui/RoutePanel";
-import * as EventsService from "./services/posthog";
 import { timeToString } from "./utils/time";
-import { event } from "./services/events";
+import { event, init as initEvents } from "./services/events";
 import LoaderComponent from "./ui/Loader/Loader";
 class App extends Component {
   constructor() {
     super();
-    EventsService.init();
+    initEvents();
     this.isMobile = isMobile();
     this.state = {
       busesData: null,

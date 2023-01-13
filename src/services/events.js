@@ -1,6 +1,10 @@
-import { capture } from "./posthog";
+import { capture, init as initPosthog } from "./posthog";
+const COMMIT_ID = "REPLACE";
 function getCurrentTime() {
   return Date.now();
+}
+export function init() {
+  initPosthog({ commit_id: COMMIT_ID, appStartTime: getCurrentTime() });
 }
 export function event(name, data) {
   capture(name, data);

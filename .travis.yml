@@ -11,6 +11,7 @@ before_deploy:
   - sed -i '/"dependencies":\ {/i"homepage":\ ".",' package.json
   - SRC="const BASE_URL = \"";DST="const BASE_URL = \"$SERVER_URL\";";sed -i "s^$SRC.*^$DST^" src/data/Buses.js
   - sed -i "s/REPLACE/$POST_ID/g" -i src/services/posthog.js
+  - sed -i "s/REPLACE/$TRAVIS_COMMIT/g" -i src/services/events.js
   - npm run build
   
 deploy:
